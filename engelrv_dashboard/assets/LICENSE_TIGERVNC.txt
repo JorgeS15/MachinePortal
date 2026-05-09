@@ -1,0 +1,8 @@
+TigerVNC is distributed under the GNU General Public License version 2 (GPL v2).
+
+Full license text: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+TigerVNC source code: https://github.com/TigerVNC/tigervnc
+
+This application bundles the TigerVNC vncviewer executable as a separate,
+unmodified binary. It is invoked as an independent process and is not linked
+with this application's code (mere aggregation under GPL v2).
