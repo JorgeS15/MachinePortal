@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# PyInstaller build artefacts
+build/
+dist/
+*.spec.bak
+
+# Binary assets — download separately (see assets/PLACE_ASSETS_HERE.txt)
+engelrv_dashboard/assets/plink.exe
+engelrv_dashboard/assets/vncviewer.exe
