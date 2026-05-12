@@ -12,7 +12,7 @@ A Windows desktop dashboard for managing remote VNC connections to Engel CC300 i
 - **Direct or SSH tunnel** — configurable per machine; older CC300 panels use direct VNC, newer ones require SSH
 - **Light and Dark themes** — switchable in Settings
 - **Backup & Restore** — export/import the machine list as JSON
-- **Offline hardware licensing** — HMAC-signed keys tied to the customer's machine; no internet required
+- **Offline hardware licensing** — Ed25519-signed keys tied to the customer's machine; no internet required
 
 ---
 
@@ -65,7 +65,17 @@ On first run, the app shows your **Device ID** — a 19-character code derived f
 
 ### For vendors (issuing keys)
 
-Use the CLI tool included in the repository:
+**First-time setup** — generate your keypair once and keep `private.key` offline:
+
+```
+python tools/generate_keypair.py
+```
+
+This saves `tools/private.key` and prints the public key already embedded in
+`dashboard/licensing.py`. Back up `private.key` securely — losing it means
+existing keys still work but no new ones can be issued.
+
+**Issuing a key** — use the CLI tool:
 
 ```
 python tools/generate_license.py <DEVICE_ID> [YYYYMMDD|LIFETIME]
@@ -81,11 +91,11 @@ python tools/generate_license.py A3F2-B1C9-4A8D-2C1E
 python tools/generate_license.py A3F2-B1C9-4A8D-2C1E 20271231
 ```
 
-The tool prints the license key to send to the customer.
+The tool prints the license key to send to the customer. Use the **Copy** button
+in the activation dialog to get the Device ID without transcription errors.
 
-> **Important:** Before distributing, replace the placeholder `_SECRET` in
-> `engelrv_dashboard/licensing.py` with a long random string of your own.
-> This is the signing key — keep it private and never change it after shipping.
+> **Security:** Only the public key ships inside the app. Even if someone
+> decompiles the binary, they cannot forge keys without `private.key`.
 
 ---
 
@@ -96,6 +106,7 @@ The tool prints the license key to send to the customer.
 | Tool | Notes |
 |---|---|
 | Python 3.11+ | Add to PATH |
+| PyNaCl | `pip install PyNaCl` |
 | `plink.exe` | From [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) |
 | `vncviewer.exe` | Portable TigerVNC from [TigerVNC releases](https://github.com/TigerVNC/tigervnc/releases) — rename `vncviewer64-X.Y.Z.exe` to `vncviewer.exe` |
 
@@ -118,18 +129,20 @@ PyInstaller is installed automatically by the build script if not already presen
 ## Project Structure
 
 ```
-engelrv_dashboard/
+dashboard/
   main.py          Entry point; license gate
   gui.py           Tkinter UI (dashboard, dialogs, themes)
   config.py        Machine and Settings data model; JSON persistence
   connection.py    SSH tunnel + VNC subprocess management; ping loop
-  licensing.py     Hardware fingerprint, HMAC key generation/verification
+  licensing.py     Hardware fingerprint, Ed25519 key verification
   version.py       Version string
   assets/          Bundled binaries and icon (not in source control)
   machineportal.spec  PyInstaller spec
 
 tools/
+  generate_keypair.py  One-time keypair generation (run once, keep private.key offline)
   generate_license.py  Vendor CLI for issuing license keys
+  private.key          Ed25519 private key seed — never commit or share
 
 build.bat          One-click build script (Windows)
 ```
