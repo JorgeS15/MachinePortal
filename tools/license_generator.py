@@ -86,10 +86,8 @@ class LicenseGeneratorApp(tk.Tk):
         self.geometry(f"+{(sw - w) // 2}+{(sh - h) // 2}")
 
     def _build(self):
-        pad = dict(padx=24, pady=6)
-
         tk.Label(self, text="License Generator", bg=BG, fg=ACCENT,
-                 font=FONT_TITLE).pack(**pad, pady=(20, 2))
+                 font=FONT_TITLE).pack(padx=24, pady=(20, 2))
         tk.Label(self, text="Machine Portal — Vendor Tool", bg=BG, fg=TEXT_TINY,
                  font=FONT_SMALL).pack(padx=24, pady=(0, 12))
 
