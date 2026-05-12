@@ -10,6 +10,7 @@ a = Analysis(
         ('assets/plink.exe', 'assets'),
         ('assets/vncviewer.exe', 'assets'),
         ('assets/LICENSE_TIGERVNC.txt', 'assets'),
+        ('assets/engelrv.ico', 'assets'),
     ],
     hiddenimports=[],
     hookspath=[],
@@ -38,6 +39,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
+    icon='assets/engelrv.ico',
     console=False,   # windowless — no command prompt
     disable_windowed_traceback=False,
     target_arch=None,

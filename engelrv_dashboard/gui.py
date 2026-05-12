@@ -5,15 +5,19 @@ import threading
 import config
 import connection
 from config import Machine, Settings
+from version import VERSION
 
 # ── Colours & fonts ───────────────────────────────────────────────────────────
 BG        = "#1e1e2e"
 SURFACE   = "#2a2a3e"
 CARD_BG   = "#252538"
+CARD_HOV  = "#2d2d48"
 ACCENT    = "#7c6af7"
 ACCENT_H  = "#9d8fff"
+TEAL      = "#2a8a7f"
 TEXT      = "#e0e0f0"
 TEXT_DIM  = "#888aaa"
+TEXT_TINY = "#555575"
 GREEN     = "#4caf83"
 RED       = "#e05c5c"
 FONT      = ("Segoe UI", 10)
@@ -21,11 +25,45 @@ FONT_BOLD = ("Segoe UI", 10, "bold")
 FONT_TITLE= ("Segoe UI", 13, "bold")
 FONT_SMALL= ("Segoe UI", 8)
 FONT_CARD = ("Segoe UI", 9)
+FONT_TINY = ("Segoe UI", 7)
 
-CARD_W  = 172
-CARD_H  = 150
-THUMB_H = 108
+CARD_W   = 172
+CARD_H   = 164
+THUMB_H  = 106
 CARD_GAP = 14
+
+# App icon – 64×64 RGBA PNG, embedded as base64 so no external file needed.
+_ICON_B64 = (
+    "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"
+    "/DFKvgAAAABJRU5ErkJggg=="
+)
 
 
 def _style_entry(w):
@@ -48,6 +86,10 @@ def _btn(parent, text, cmd, bg=ACCENT, fg="white", width=12):
     return b
 
 
+def _separator(parent, color="#2e2e48"):
+    tk.Frame(parent, bg=color, height=1).pack(fill="x")
+
+
 # ── Machine card widget ───────────────────────────────────────────────────────
 class MachineCard(tk.Frame):
 
@@ -64,18 +106,19 @@ class MachineCard(tk.Frame):
         self.machine = machine
         self._on_select = on_select
         self._on_double = on_double
+        self._selected = False
 
-        # Thumbnail canvas
+        # ── Thumbnail ──────────────────────────────────────────────────────
         self._thumb = tk.Canvas(
             self, width=CARD_W - 4, height=THUMB_H,
-            bg="#1a1a2c", highlightthickness=0,
+            bg="#191928", highlightthickness=0,
         )
         self._thumb.pack(fill="x")
         self._draw_thumb()
 
-        # Info strip
+        # ── Info strip ─────────────────────────────────────────────────────
         info = tk.Frame(self, bg=CARD_BG)
-        info.pack(fill="x", padx=7, pady=(5, 4))
+        info.pack(fill="x", padx=8, pady=(6, 4))
 
         connected = connection.is_connected(machine.id)
         self._dot = tk.Label(
@@ -89,43 +132,72 @@ class MachineCard(tk.Frame):
             font=FONT_CARD, anchor="w",
         ).pack(side="left", padx=(3, 0))
 
+        # ── Second row: IP + badge ─────────────────────────────────────────
+        meta = tk.Frame(self, bg=CARD_BG)
+        meta.pack(fill="x", padx=8, pady=(0, 6))
+
+        tk.Label(
+            meta, text=machine.ip, bg=CARD_BG, fg=TEXT_DIM,
+            font=FONT_TINY, anchor="w",
+        ).pack(side="left")
+
+        badge_bg  = ACCENT if machine.ssh else TEAL
+        badge_txt = "SSH+VNC" if machine.ssh else "Direct VNC"
+        badge = tk.Label(
+            meta, text=badge_txt, bg=badge_bg, fg="white",
+            font=FONT_TINY, padx=4, pady=1,
+        )
+        badge.pack(side="right")
+
         self._bind_tree(self)
 
     def _draw_thumb(self):
         c = self._thumb
         w, h = CARD_W - 4, THUMB_H
         # Monitor screen
-        sx, sy = w * 0.13, h * 0.08
-        sw, sh = w * 0.74, h * 0.66
-        c.create_rectangle(sx, sy, sx + sw, sy + sh,
-                           outline="#44446a", fill="#2a2a3e", width=2)
+        sx, sy = int(w*.13), int(h*.10)
+        sw, sh = int(w*.74), int(h*.64)
+        # Subtle inner glow: slightly lighter fill at top
+        c.create_rectangle(sx+2, sy+2, sx+sw-2, sy+sh-2, fill="#23233a", outline="")
+        c.create_rectangle(sx, sy, sx+sw, sy+sh,
+                           outline="#4a4875", fill="", width=2)
         # Stand stem
-        mx = w / 2
-        c.create_line(mx, sy + sh, mx, sy + sh + h * 0.14,
-                      fill="#44446a", width=3)
+        mx = w // 2
+        c.create_line(mx, sy+sh, mx, sy+sh+int(h*.14), fill="#4a4875", width=3)
         # Stand base
-        bw = sw * 0.38
-        by = sy + sh + h * 0.14
-        c.create_rectangle(mx - bw, by, mx + bw, by + h * 0.1,
-                           fill="#44446a", outline="")
-        # Initials
+        bw = int(sw * .36)
+        by = sy + sh + int(h*.14)
+        c.create_rectangle(mx-bw, by, mx+bw, by+int(h*.10),
+                           fill="#4a4875", outline="")
+        # Initials inside screen
         parts = self.machine.name.split()
         initials = (parts[0][0] + (parts[1][0] if len(parts) > 1 else "")).upper()
-        c.create_text(w / 2, sy + sh / 2,
-                      text=initials, fill="#5a5a90",
-                      font=("Segoe UI", 18, "bold"))
+        c.create_text(w/2, sy + sh/2,
+                      text=initials, fill="#5a5a98",
+                      font=("Segoe UI", 17, "bold"))
 
     def _bind_tree(self, widget):
-        widget.bind("<Button-1>", lambda e: self._on_select(self.machine.id))
+        widget.bind("<Button-1>",        lambda e: self._on_select(self.machine.id))
         widget.bind("<Double-Button-1>", lambda e: self._on_double(self.machine.id))
+        widget.bind("<Enter>",           self._on_hover_in)
+        widget.bind("<Leave>",           self._on_hover_out)
         for child in widget.winfo_children():
             self._bind_tree(child)
+
+    def _on_hover_in(self, _e):
+        if not self._selected and not connection.is_connected(self.machine.id):
+            self.configure(highlightbackground="#44446a")
+
+    def _on_hover_out(self, _e):
+        if not self._selected and not connection.is_connected(self.machine.id):
+            self.configure(highlightbackground=CARD_BG)
 
     def refresh_status(self):
         connected = connection.is_connected(self.machine.id)
         self._dot.configure(fg=GREEN if connected else TEXT_DIM)
 
     def set_selected(self, selected: bool):
+        self._selected = selected
         connected = connection.is_connected(self.machine.id)
         if selected:
             self.configure(highlightbackground=ACCENT)
@@ -150,18 +222,18 @@ class MachineDialog(tk.Toplevel):
         self.configure(bg=BG)
         self.grab_set()
 
-        pad = {"padx": 12, "pady": 5}
+        pad = {"padx": 14, "pady": 6}
 
         def lbl(text):
             return tk.Label(self, text=text, bg=BG, fg=TEXT_DIM, font=FONT, anchor="w")
 
         lbl("Machine Name").grid(row=0, column=0, sticky="w", **pad)
-        self._name = tk.Entry(self, width=30)
+        self._name = tk.Entry(self, width=28)
         _style_entry(self._name)
         self._name.grid(row=0, column=1, **pad)
 
         lbl("IP Address").grid(row=1, column=0, sticky="w", **pad)
-        self._ip = tk.Entry(self, width=30)
+        self._ip = tk.Entry(self, width=28)
         _style_entry(self._ip)
         self._ip.grid(row=1, column=1, **pad)
 
@@ -171,28 +243,28 @@ class MachineDialog(tk.Toplevel):
             command=self._toggle_ssh,
             bg=BG, fg=TEXT, selectcolor=SURFACE,
             activebackground=BG, activeforeground=TEXT, font=FONT,
-        ).grid(row=2, column=0, columnspan=2, sticky="w", padx=12, pady=6)
+        ).grid(row=2, column=0, columnspan=2, sticky="w", padx=14, pady=8)
 
         self._user_lbl = lbl("SSH Username")
         self._user_lbl.grid(row=3, column=0, sticky="w", **pad)
-        self._user = tk.Entry(self, width=30)
+        self._user = tk.Entry(self, width=28)
         _style_entry(self._user)
         self._user.grid(row=3, column=1, **pad)
 
         self._pass_lbl = lbl("SSH Password")
         self._pass_lbl.grid(row=4, column=0, sticky="w", **pad)
-        self._password = tk.Entry(self, width=30, show="•")
+        self._password = tk.Entry(self, width=28, show="•")
         _style_entry(self._password)
         self._password.grid(row=4, column=1, **pad)
 
         self._port_lbl = lbl("SSH local port")
         self._port_lbl.grid(row=5, column=0, sticky="w", **pad)
-        self._port = tk.Entry(self, width=30)
+        self._port = tk.Entry(self, width=28)
         _style_entry(self._port)
         self._port.grid(row=5, column=1, **pad)
 
         btn_frame = tk.Frame(self, bg=BG)
-        btn_frame.grid(row=6, column=0, columnspan=2, pady=12)
+        btn_frame.grid(row=6, column=0, columnspan=2, pady=14)
         _btn(btn_frame, "Save", self._save, width=10).pack(side="left", padx=6)
         _btn(btn_frame, "Cancel", self.destroy, bg="#44446a", width=10).pack(side="left", padx=6)
 
@@ -224,7 +296,7 @@ class MachineDialog(tk.Toplevel):
     def _toggle_ssh(self):
         ssh = self._ssh_var.get()
         state = "normal" if ssh else "disabled"
-        dim = TEXT if ssh else "#555577"
+        dim   = TEXT if ssh else "#555577"
         for w in (self._user, self._password, self._port):
             w.configure(state=state)
         for lbl in (self._user_lbl, self._pass_lbl, self._port_lbl):
@@ -232,7 +304,7 @@ class MachineDialog(tk.Toplevel):
 
     def _save(self):
         name = self._name.get().strip()
-        ip = self._ip.get().strip()
+        ip   = self._ip.get().strip()
         if not name:
             messagebox.showwarning("Validation", "Machine name is required.", parent=self)
             return
@@ -244,10 +316,8 @@ class MachineDialog(tk.Toplevel):
         except ValueError:
             messagebox.showwarning("Validation", "SSH local port must be an integer.", parent=self)
             return
-
         self.result = Machine(
-            name=name,
-            ip=ip,
+            name=name, ip=ip,
             ssh=self._ssh_var.get(),
             ssh_user=self._user.get().strip() or "user",
             ssh_password=self._password.get(),
@@ -338,9 +408,16 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("EngelRV — Remote View Dashboard")
-        self.geometry("720x520")
-        self.minsize(560, 380)
+        self.geometry("760x540")
+        self.minsize(580, 400)
         self.configure(bg=BG)
+
+        # Window icon
+        try:
+            _icon = tk.PhotoImage(data=_ICON_B64)
+            self.iconphoto(True, _icon)
+        except Exception:
+            pass
 
         self._machines, self._settings = config.load()
         self._cards: dict[str, MachineCard] = {}
@@ -354,18 +431,21 @@ class App(tk.Tk):
 
     # ── UI construction ───────────────────────────────────────────────────────
     def _build_ui(self):
-        # Title bar
+        # ── Title bar ─────────────────────────────────────────────────────
         title_frame = tk.Frame(self, bg=BG)
-        title_frame.pack(fill="x", padx=16, pady=(14, 6))
+        title_frame.pack(fill="x", padx=16, pady=(14, 8))
+
         tk.Label(title_frame, text="EngelRV", bg=BG, fg=ACCENT,
                  font=FONT_TITLE).pack(side="left")
         tk.Label(title_frame, text="Remote View Dashboard", bg=BG, fg=TEXT_DIM,
                  font=FONT).pack(side="left", padx=(8, 0), pady=2)
         _btn(title_frame, "+ Add", self._add_machine, width=8).pack(side="right")
 
-        # Scrollable card grid
+        _separator(self)
+
+        # ── Scrollable card grid ───────────────────────────────────────────
         grid_container = tk.Frame(self, bg=BG)
-        grid_container.pack(fill="both", expand=True, padx=16, pady=4)
+        grid_container.pack(fill="both", expand=True, padx=16, pady=(10, 4))
 
         self._canvas = tk.Canvas(grid_container, bg=BG, highlightthickness=0)
         sb = ttk.Scrollbar(grid_container, orient="vertical", command=self._canvas.yview)
@@ -385,9 +465,11 @@ class App(tk.Tk):
         for seq in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
             self._canvas.bind(seq, self._on_scroll)
 
-        # Bottom toolbar
+        # ── Bottom toolbar ─────────────────────────────────────────────────
+        _separator(self)
+
         toolbar = tk.Frame(self, bg=BG)
-        toolbar.pack(fill="x", padx=16, pady=(6, 14))
+        toolbar.pack(fill="x", padx=16, pady=(8, 6))
 
         self._btn_connect = _btn(toolbar, "Connect", self._connect, width=10)
         self._btn_connect.pack(side="left", padx=(0, 6))
@@ -396,11 +478,15 @@ class App(tk.Tk):
         self._btn_delete = _btn(toolbar, "Delete", self._delete_machine, bg=RED, width=8)
         self._btn_delete.pack(side="left")
 
-        _btn(toolbar, "⚙ Settings", self._open_settings,
-             bg=SURFACE, width=10).pack(side="right")
+        _btn(toolbar, "⚙  Settings", self._open_settings,
+             bg=SURFACE, width=11).pack(side="right")
 
         self._status_lbl = tk.Label(toolbar, text="", bg=BG, fg=TEXT_DIM, font=FONT)
         self._status_lbl.pack(side="right", padx=(0, 10))
+
+        # ── Version footer ─────────────────────────────────────────────────
+        tk.Label(self, text=f"v{VERSION}", bg=BG, fg=TEXT_TINY,
+                 font=("Segoe UI", 8)).pack(side="bottom", anchor="e", padx=10, pady=(0, 4))
 
         self._update_buttons()
 
@@ -437,13 +523,20 @@ class App(tk.Tk):
             w.destroy()
         self._cards = {}
 
-        for m in self._machines:
-            card = MachineCard(
-                self._grid_frame, m,
-                on_select=self._select_card,
-                on_double=self._connect_by_id,
-            )
-            self._cards[m.id] = card
+        if not self._machines:
+            tk.Label(
+                self._grid_frame,
+                text="No machines added yet.\nClick  + Add  to get started.",
+                bg=BG, fg=TEXT_DIM, font=FONT, justify="center",
+            ).pack(pady=60)
+        else:
+            for m in self._machines:
+                card = MachineCard(
+                    self._grid_frame, m,
+                    on_select=self._select_card,
+                    on_double=self._connect_by_id,
+                )
+                self._cards[m.id] = card
 
         self._reflow_cards()
 
