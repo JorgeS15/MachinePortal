@@ -1,7 +1,21 @@
 # Changelog
 
-All notable changes to EngelRV are documented here.
+All notable changes to Machine Portal are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+---
+
+## [0.1.6] – 2026-05-12
+
+### Changed
+- **App renamed** from "EngelRV" to **"Machine Portal"** — window title, title bar,
+  config directory (`%APPDATA%\MachinePortal\`), log file, backup filename, exe name,
+  and all build script references updated.
+- **Lime green Light theme** — Light theme accent color changed from dark green to
+  lime green (`#72b81a`), with matching card thumbnails, separators, and entry borders.
+- **Log file moved** to `%APPDATA%\MachinePortal\machineportal.log` (same folder as
+  `machines.json`), replacing the previous location next to the `.exe` which could be
+  read-only on some systems.
 
 ---
 

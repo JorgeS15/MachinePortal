@@ -2,7 +2,7 @@
 setlocal
 
 echo ============================================
-echo  EngelRV Dashboard - Build Script
+echo  Machine Portal - Build Script
 echo ============================================
 echo.
 
@@ -34,9 +34,9 @@ echo Installing PyInstaller...
 python -m pip install --upgrade pyinstaller >nul 2>&1
 
 REM Build
-echo Building EngelRV.exe ...
+echo Building MachinePortal.exe ...
 cd engelrv_dashboard
-python -m PyInstaller engelrv.spec --distpath ..\dist --workpath ..\build --noconfirm --clean
+python -m PyInstaller machineportal.spec --distpath ..\dist --workpath ..\build --noconfirm --clean
 cd ..
 
 if errorlevel 1 (
@@ -49,6 +49,6 @@ if errorlevel 1 (
 echo.
 echo ============================================
 echo  BUILD COMPLETE
-echo  Output: dist\EngelRV.exe
+echo  Output: dist\MachinePortal.exe
 echo ============================================
 pause

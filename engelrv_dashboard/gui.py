@@ -94,26 +94,26 @@ _ICON_DARK_B64 = (
 # ── Theme definitions ─────────────────────────────────────────────────────────
 THEMES: dict[str, dict] = {
     "Light": {
-        "BG":              "#f5f7f5",
-        "SURFACE":         "#e8ece8",
+        "BG":              "#f7f8f2",
+        "SURFACE":         "#eaefd8",
         "CARD_BG":         "#ffffff",
-        "ACCENT":          "#2e7d52",
-        "ACCENT_H":        "#388e5e",
-        "BTN_SEC":         "#6b8f74",
-        "TEAL":            "#1b7a6e",
-        "TEXT":            "#1a2a1e",
-        "TEXT_DIM":        "#4a6a52",
-        "TEXT_TINY":       "#8aaa92",
-        "GREEN":           "#27ae60",
-        "RED":             "#c0392b",
-        "SEP_COLOR":       "#ccd8cc",
+        "ACCENT":          "#72b81a",
+        "ACCENT_H":        "#85d020",
+        "BTN_SEC":         "#7a9470",
+        "TEAL":            "#1b8a7e",
+        "TEXT":            "#1e2a12",
+        "TEXT_DIM":        "#4a6030",
+        "TEXT_TINY":       "#8aaa72",
+        "GREEN":           "#4caf50",
+        "RED":             "#e53935",
+        "SEP_COLOR":       "#d0dab8",
         "ENTRY_BG":        "#ffffff",
-        "ENTRY_BORDER":    "#a0c0a8",
-        "THUMB_BG":        "#e4f0e8",
-        "MONITOR_OUTLINE": "#4a9a68",
-        "MONITOR_FILL":    "#d0ead8",
-        "MONITOR_STAND":   "#4a9a68",
-        "MONITOR_TEXT":    "#2a6a42",
+        "ENTRY_BORDER":    "#a8c870",
+        "THUMB_BG":        "#eef5d8",
+        "MONITOR_OUTLINE": "#72b81a",
+        "MONITOR_FILL":    "#dff0b0",
+        "MONITOR_STAND":   "#72b81a",
+        "MONITOR_TEXT":    "#4a7a0e",
         "ICON_B64":        _ICON_LIGHT_B64,
     },
     "Dark": {
@@ -582,13 +582,13 @@ class App(tk.Tk):
         self._machines, self._settings = config.load()
         set_theme(self._settings.theme)
 
-        self.title("EngelRV — Remote View Dashboard")
+        self.title("Machine Portal — Remote View Dashboard")
         self.geometry("760x540")
         self.minsize(580, 400)
         self.configure(bg=BG)
 
         try:
-            ico = _asset_path("engelrv.ico")
+            ico = _asset_path("machineportal.ico")
             if os.path.exists(ico):
                 self.wm_iconbitmap(ico)
             else:
@@ -616,7 +616,7 @@ class App(tk.Tk):
         title_frame = tk.Frame(self, bg=BG)
         title_frame.pack(fill="x", padx=16, pady=(14, 8))
 
-        tk.Label(title_frame, text="EngelRV", bg=BG, fg=ACCENT,
+        tk.Label(title_frame, text="Machine Portal", bg=BG, fg=ACCENT,
                  font=FONT_TITLE).pack(side="left")
         tk.Label(title_frame, text="Remote View Dashboard", bg=BG, fg=TEXT_DIM,
                  font=FONT).pack(side="left", padx=(8, 0), pady=2)
@@ -846,7 +846,7 @@ class App(tk.Tk):
         path = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON backup", "*.json"), ("All files", "*.*")],
-            initialfile="engelrv_backup.json",
+            initialfile="machineportal_backup.json",
             title="Export Config",
             parent=self,
         )
