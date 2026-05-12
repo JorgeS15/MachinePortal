@@ -173,10 +173,10 @@ FONT_SMALL = ("Segoe UI", 8)
 FONT_CARD  = ("Segoe UI", 9)
 FONT_TINY  = ("Segoe UI", 7)
 
-CARD_W   = 172
-CARD_H   = 164
-THUMB_H  = 106
-CARD_GAP = 14
+CARD_W   = 182
+CARD_H   = 172
+THUMB_H  = 112
+CARD_GAP = 16
 
 
 def set_theme(name: str) -> None:
@@ -272,7 +272,7 @@ class MachineCard(tk.Frame):
         self._dot = tk.Label(info, text="●", bg=CARD_BG, fg=dot_color, font=FONT_SMALL)
         self._dot.pack(side="left")
         tk.Label(info, text=machine.name, bg=CARD_BG, fg=TEXT,
-                 font=FONT_CARD, anchor="w").pack(side="left", padx=(3, 0))
+                 font=FONT_BOLD, anchor="w").pack(side="left", padx=(3, 0))
 
         meta = tk.Frame(self, bg=CARD_BG)
         meta.pack(fill="x", padx=8, pady=(0, 6))
@@ -292,10 +292,16 @@ class MachineCard(tk.Frame):
         w, h = CARD_W - 4, THUMB_H
         sx, sy = int(w * .13), int(h * .10)
         sw, sh = int(w * .74), int(h * .64)
+        # Screen interior
         c.create_rectangle(sx + 2, sy + 2, sx + sw - 2, sy + sh - 2,
                            fill=MONITOR_FILL, outline="")
+        # Screen border
         c.create_rectangle(sx, sy, sx + sw, sy + sh,
                            outline=MONITOR_OUTLINE, fill="", width=2)
+        # Top highlight bar inside screen
+        c.create_rectangle(sx + 3, sy + 3, sx + sw - 3, sy + 8,
+                           fill=MONITOR_OUTLINE, outline="")
+        # Stand
         mx = w // 2
         c.create_line(mx, sy + sh, mx, sy + sh + int(h * .14),
                       fill=MONITOR_STAND, width=3)
@@ -303,9 +309,10 @@ class MachineCard(tk.Frame):
         by = sy + sh + int(h * .14)
         c.create_rectangle(mx - bw, by, mx + bw, by + int(h * .10),
                            fill=MONITOR_STAND, outline="")
+        # Initials
         parts    = self.machine.name.split()
         initials = (parts[0][0] + (parts[1][0] if len(parts) > 1 else "")).upper()
-        c.create_text(w / 2, sy + sh / 2,
+        c.create_text(w / 2, sy + sh / 2 + 4,
                       text=initials, fill=MONITOR_TEXT,
                       font=("Segoe UI", 17, "bold"))
 
@@ -377,10 +384,12 @@ class ActivationDialog(tk.Toplevel):
         import licensing
         p = dict(padx=24, pady=6)
 
-        tk.Label(self, text="Machine Portal", bg=BG, fg=ACCENT,
-                 font=FONT_TITLE).pack(padx=24, pady=(18, 2))
-        tk.Label(self, text="This copy is not activated.", bg=BG, fg=TEXT,
-                 font=FONT).pack(padx=24, pady=(0, 8))
+        hdr = tk.Frame(self, bg=ACCENT)
+        hdr.pack(fill="x")
+        tk.Label(hdr, text="Machine Portal", bg=ACCENT, fg="white",
+                 font=FONT_TITLE).pack(anchor="w", padx=20, pady=(14, 2))
+        tk.Label(hdr, text="Activation Required", bg=ACCENT, fg="white",
+                 font=FONT_SMALL).pack(anchor="w", padx=20, pady=(0, 12))
 
         # Device ID box
         box = tk.Frame(self, bg=SURFACE, padx=14, pady=10)
@@ -455,24 +464,35 @@ class MachineDialog(tk.Toplevel):
         self.configure(bg=BG)
         self.grab_set()
 
+        # Colored header band
+        hdr = tk.Frame(self, bg=ACCENT)
+        hdr.pack(fill="x")
+        tk.Label(hdr, text="Edit Machine" if machine else "Add Machine",
+                 bg=ACCENT, fg="white", font=FONT_TITLE).pack(
+                     anchor="w", padx=20, pady=(14, 12))
+
+        # Content area
+        content = tk.Frame(self, bg=BG)
+        content.pack(fill="both", expand=True)
+
         pad = {"padx": 14, "pady": 6}
 
         def lbl(text):
-            return tk.Label(self, text=text, bg=BG, fg=TEXT_DIM, font=FONT, anchor="w")
+            return tk.Label(content, text=text, bg=BG, fg=TEXT_DIM, font=FONT, anchor="w")
 
         lbl("Machine Name").grid(row=0, column=0, sticky="w", **pad)
-        self._name = tk.Entry(self, width=28)
+        self._name = tk.Entry(content, width=28)
         _style_entry(self._name)
         self._name.grid(row=0, column=1, **pad)
 
         lbl("IP Address").grid(row=1, column=0, sticky="w", **pad)
-        self._ip = tk.Entry(self, width=28)
+        self._ip = tk.Entry(content, width=28)
         _style_entry(self._ip)
         self._ip.grid(row=1, column=1, **pad)
 
         self._ssh_var = tk.BooleanVar(value=machine.ssh if machine else False)
         tk.Checkbutton(
-            self, text="Requires SSH tunnel", variable=self._ssh_var,
+            content, text="Requires SSH tunnel", variable=self._ssh_var,
             command=self._toggle_ssh,
             bg=BG, fg=TEXT, selectcolor=SURFACE,
             activebackground=BG, activeforeground=TEXT, font=FONT,
@@ -480,23 +500,23 @@ class MachineDialog(tk.Toplevel):
 
         self._user_lbl = lbl("SSH Username")
         self._user_lbl.grid(row=3, column=0, sticky="w", **pad)
-        self._user = tk.Entry(self, width=28)
+        self._user = tk.Entry(content, width=28)
         _style_entry(self._user)
         self._user.grid(row=3, column=1, **pad)
 
         self._pass_lbl = lbl("SSH Password")
         self._pass_lbl.grid(row=4, column=0, sticky="w", **pad)
-        self._password = tk.Entry(self, width=28, show="•")
+        self._password = tk.Entry(content, width=28, show="•")
         _style_entry(self._password)
         self._password.grid(row=4, column=1, **pad)
 
         self._port_lbl = lbl("SSH local port")
         self._port_lbl.grid(row=5, column=0, sticky="w", **pad)
-        self._port = tk.Entry(self, width=28)
+        self._port = tk.Entry(content, width=28)
         _style_entry(self._port)
         self._port.grid(row=5, column=1, **pad)
 
-        btn_frame = tk.Frame(self, bg=BG)
+        btn_frame = tk.Frame(content, bg=BG)
         btn_frame.grid(row=6, column=0, columnspan=2, pady=14)
         _btn(btn_frame, "Save", self._save, width=10).pack(side="left", padx=6)
         _btn(btn_frame, "Cancel", self.destroy, bg=BTN_SEC, width=10).pack(side="left", padx=6)
@@ -573,20 +593,30 @@ class SettingsDialog(tk.Toplevel):
         self.configure(bg=BG)
         self.grab_set()
 
+        # Colored header band
+        hdr = tk.Frame(self, bg=ACCENT)
+        hdr.pack(fill="x")
+        tk.Label(hdr, text="Settings", bg=ACCENT, fg="white",
+                 font=FONT_TITLE).pack(anchor="w", padx=20, pady=(14, 12))
+
+        # Content area
+        content = tk.Frame(self, bg=BG)
+        content.pack(fill="both", expand=True)
+
         pad  = {"padx": 14, "pady": 5}
         row  = [0]
 
         def section(title):
             tk.Label(
-                self, text=title, bg=BG, fg=ACCENT, font=FONT_BOLD,
+                content, text=title, bg=BG, fg=ACCENT, font=FONT_BOLD,
             ).grid(row=row[0], column=0, columnspan=2, sticky="w",
                    padx=14, pady=(14 if row[0] == 0 else 10, 2))
             row[0] += 1
 
         def field(label, default, show=None):
-            tk.Label(self, text=label, bg=BG, fg=TEXT_DIM, font=FONT,
+            tk.Label(content, text=label, bg=BG, fg=TEXT_DIM, font=FONT,
                      anchor="w").grid(row=row[0], column=0, sticky="w", **pad)
-            e = tk.Entry(self, width=22, show=show)
+            e = tk.Entry(content, width=22, show=show)
             _style_entry(e)
             e.insert(0, str(default))
             e.grid(row=row[0], column=1, **pad)
@@ -607,7 +637,7 @@ class SettingsDialog(tk.Toplevel):
 
         section("Theme")
         self._theme_var = tk.StringVar(value=settings.theme)
-        tf = tk.Frame(self, bg=BG)
+        tf = tk.Frame(content, bg=BG)
         tf.grid(row=row[0], column=0, columnspan=2, padx=14, pady=5, sticky="w")
         for t in ("Light", "Dark"):
             tk.Radiobutton(
@@ -618,13 +648,13 @@ class SettingsDialog(tk.Toplevel):
         row[0] += 1
 
         section("Backup & Restore")
-        br = tk.Frame(self, bg=BG)
+        br = tk.Frame(content, bg=BG)
         br.grid(row=row[0], column=0, columnspan=2, padx=14, pady=5, sticky="w")
         _btn(br, "Export…", on_export or (lambda: None), bg=BTN_SEC, width=10).pack(side="left", padx=(0, 8))
         _btn(br, "Import…", on_import or (lambda: None), bg=BTN_SEC, width=10).pack(side="left")
         row[0] += 1
 
-        btn_frame = tk.Frame(self, bg=BG)
+        btn_frame = tk.Frame(content, bg=BG)
         btn_frame.grid(row=row[0], column=0, columnspan=2, pady=14)
         _btn(btn_frame, "Save",   self._save,    width=10).pack(side="left", padx=6)
         _btn(btn_frame, "Cancel", self.destroy,  bg=BTN_SEC, width=10).pack(side="left", padx=6)
@@ -675,13 +705,14 @@ class App(tk.Tk):
             ico = _asset_path("machineportal.ico")
             if os.path.exists(ico):
                 self.wm_iconbitmap(ico)
-            else:
-                raise FileNotFoundError
         except Exception:
-            try:
-                self.iconphoto(True, tk.PhotoImage(data=_ICON_B64))
-            except Exception:
-                pass
+            pass
+        # iconphoto(True, ...) propagates icon to all Toplevel dialogs
+        try:
+            self._app_icon = tk.PhotoImage(data=_ICON_B64)
+            self.iconphoto(True, self._app_icon)
+        except Exception:
+            pass
 
         self._cards: dict[str, MachineCard] = {}
         self._selected_id: str | None = None
@@ -697,14 +728,23 @@ class App(tk.Tk):
 
     # ── UI construction ───────────────────────────────────────────────────────
     def _build_ui(self):
-        title_frame = tk.Frame(self, bg=BG)
-        title_frame.pack(fill="x", padx=16, pady=(14, 8))
+        header = tk.Frame(self, bg=SURFACE)
+        header.pack(fill="x")
+        inner = tk.Frame(header, bg=SURFACE)
+        inner.pack(fill="x", padx=18, pady=11)
 
-        tk.Label(title_frame, text="Machine Portal", bg=BG, fg=ACCENT,
-                 font=FONT_TITLE).pack(side="left")
-        tk.Label(title_frame, text="Remote View Dashboard", bg=BG, fg=TEXT_DIM,
-                 font=FONT).pack(side="left", padx=(8, 0), pady=2)
-        _btn(title_frame, "+ Add", self._add_machine, width=8).pack(side="right")
+        left = tk.Frame(inner, bg=SURFACE)
+        left.pack(side="left")
+        tk.Label(left, text="Machine Portal", bg=SURFACE, fg=ACCENT,
+                 font=FONT_TITLE).pack(anchor="w")
+        tk.Label(left, text="Remote View Dashboard", bg=SURFACE, fg=TEXT_DIM,
+                 font=("Segoe UI", 9)).pack(anchor="w")
+
+        right = tk.Frame(inner, bg=SURFACE)
+        right.pack(side="right")
+        tk.Label(right, text=f"v{VERSION}", bg=SURFACE, fg=TEXT_TINY,
+                 font=FONT_SMALL).pack(anchor="e", pady=(0, 4))
+        _btn(right, "+ Add", self._add_machine, width=8).pack(anchor="e")
 
         _separator(self)
 
@@ -746,9 +786,6 @@ class App(tk.Tk):
 
         self._status_lbl = tk.Label(toolbar, text="", bg=BG, fg=TEXT_DIM, font=FONT)
         self._status_lbl.pack(side="right", padx=(0, 10))
-
-        tk.Label(self, text=f"v{VERSION}", bg=BG, fg=TEXT_TINY,
-                 font=("Segoe UI", 8)).pack(side="bottom", anchor="e", padx=10, pady=(0, 4))
 
         self._update_buttons()
 

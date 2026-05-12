@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.2.2] – 2026-05-12
+
+### Changed
+- **Modernised UI** — all dialogs now open with an accent-coloured header band
+  (Activation, Add/Edit Machine, Settings) instead of plain text labels.
+- **Main window header** — title and subtitle sit on a `SURFACE`-coloured band;
+  version badge moved into the header (top-right) and removed from the bottom.
+- **Cards** — slightly larger (182 × 172 px), increased gap between cards, monitor
+  thumbnail gains a top highlight bar for a screen-glow effect, machine name
+  rendered in bold.
+
+### Fixed
+- **Feather icon on dialogs** — `iconphoto(True, …)` is now always called on the
+  main window so every Toplevel (Activation, Settings, Add/Edit) inherits the app
+  icon instead of showing the default Tk feather.
+
+---
+
 ## [0.2.1] – 2026-05-12
 
 ### Fixed
