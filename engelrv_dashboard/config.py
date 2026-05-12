@@ -27,6 +27,7 @@ class Settings:
     tunnel_wait_seconds: int = 3
     default_ssh_user: str = ""
     default_ssh_password: str = ""
+    theme: str = "Light"
 
 
 def _filter(dc_type, data: dict) -> dict:
