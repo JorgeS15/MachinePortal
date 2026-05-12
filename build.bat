@@ -29,9 +29,9 @@ if not exist "dashboard\assets\vncviewer.exe" (
     exit /b 1
 )
 
-REM Install/upgrade PyInstaller
-echo Installing PyInstaller...
-python -m pip install --upgrade pyinstaller >nul 2>&1
+REM Install/upgrade PyInstaller and required packages
+echo Installing dependencies...
+python -m pip install --upgrade pyinstaller PyNaCl >nul 2>&1
 
 REM Build
 echo Building MachinePortal.exe ...
