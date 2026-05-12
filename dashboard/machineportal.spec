@@ -1,18 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
+
+# Collect all files (pure Python, binaries, data) for PyNaCl and its cffi backend
+nacl_datas,     nacl_binaries,     nacl_hiddenimports     = collect_all('nacl')
+cffi_datas,     cffi_binaries,     cffi_hiddenimports     = collect_all('cffi')
 
 a = Analysis(
     ['main.py'],
     pathex=['.'],
-    binaries=[],
-    datas=[
+    binaries=nacl_binaries + cffi_binaries,
+    datas=nacl_datas + cffi_datas + [
         ('assets/plink.exe', 'assets'),
         ('assets/vncviewer.exe', 'assets'),
         ('assets/LICENSE_TIGERVNC.txt', 'assets'),
         ('assets/machineportal.ico', 'assets'),
     ],
-    hiddenimports=["nacl", "nacl.signing", "nacl.exceptions", "nacl.bindings"],
+    hiddenimports=nacl_hiddenimports + cffi_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
