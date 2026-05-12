@@ -378,7 +378,7 @@ class ActivationDialog(tk.Toplevel):
         p = dict(padx=24, pady=6)
 
         tk.Label(self, text="Machine Portal", bg=BG, fg=ACCENT,
-                 font=FONT_TITLE).pack(**p, pady=(18, 2))
+                 font=FONT_TITLE).pack(padx=24, pady=(18, 2))
         tk.Label(self, text="This copy is not activated.", bg=BG, fg=TEXT,
                  font=FONT).pack(padx=24, pady=(0, 8))
 
