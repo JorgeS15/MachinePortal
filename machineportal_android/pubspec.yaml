@@ -1,0 +1,38 @@
+name: machineportal_android
+description: MachinePortal — remote VNC dashboard for Android with SSH tunneling.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # SSH2 client — pure Dart, supports local port forwarding
+  dartssh2: ^2.9.0
+
+  # SQLite for machine list persistence
+  sqflite: ^2.3.0
+  path: ^1.9.0
+
+  # Encrypted storage for SSH passwords
+  flutter_secure_storage: ^9.2.2
+
+  # Settings storage
+  shared_preferences: ^2.3.1
+
+  # State management
+  provider: ^6.1.2
+
+  # UUID generation for machine IDs
+  uuid: ^4.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
