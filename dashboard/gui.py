@@ -356,6 +356,80 @@ class MachineCard(tk.Frame):
             self.configure(highlightbackground=CARD_BG)
 
 
+# ── Activation dialog ─────────────────────────────────────────────────────────
+class ActivationDialog(tk.Toplevel):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Machine Portal — Activation")
+        self.resizable(False, False)
+        self.configure(bg=BG)
+        self.activated = False
+        self._build()
+        self.grab_set()
+        self.protocol("WM_DELETE_WINDOW", self._on_exit)
+        self.update_idletasks()
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        w, h = self.winfo_width(), self.winfo_height()
+        self.geometry(f"+{(sw - w) // 2}+{(sh - h) // 2}")
+
+    def _build(self):
+        import licensing
+        p = dict(padx=24, pady=6)
+
+        tk.Label(self, text="Machine Portal", bg=BG, fg=ACCENT,
+                 font=FONT_TITLE).pack(**p, pady=(18, 2))
+        tk.Label(self, text="This copy is not activated.", bg=BG, fg=TEXT,
+                 font=FONT).pack(padx=24, pady=(0, 8))
+
+        # Device ID box
+        box = tk.Frame(self, bg=SURFACE, padx=14, pady=10)
+        box.pack(padx=24, pady=4, fill="x")
+        tk.Label(box, text="Your Device ID", bg=SURFACE, fg=TEXT_DIM,
+                 font=FONT_SMALL).pack(anchor="w")
+        tk.Label(box, text=licensing.get_display_id(), bg=SURFACE, fg=TEXT,
+                 font=("Courier New", 14, "bold")).pack(anchor="w", pady=(3, 0))
+        tk.Label(box, text="Send this ID to your vendor to receive a license key.",
+                 bg=SURFACE, fg=TEXT_TINY, font=FONT_SMALL).pack(anchor="w", pady=(5, 0))
+
+        # Key entry
+        tk.Label(self, text="License Key:", bg=BG, fg=TEXT,
+                 font=FONT).pack(padx=24, pady=(12, 2), anchor="w")
+        self._key_var = tk.StringVar()
+        tk.Entry(
+            self, textvariable=self._key_var, width=38,
+            bg=ENTRY_BG, fg=TEXT, insertbackground=TEXT,
+            relief="flat", highlightthickness=1,
+            highlightbackground=ENTRY_BORDER, highlightcolor=ACCENT,
+            font=("Courier New", 10),
+        ).pack(padx=24, fill="x")
+        self._msg = tk.Label(self, text="", bg=BG, fg=RED, font=FONT_SMALL)
+        self._msg.pack(padx=24, anchor="w", pady=(3, 0))
+
+        # Buttons
+        bf = tk.Frame(self, bg=BG)
+        bf.pack(padx=24, pady=(10, 18), fill="x")
+        _btn(bf, "Exit", self._on_exit, bg=BTN_SEC, width=8).pack(side="left")
+        _btn(bf, "Activate", self._on_activate, width=12).pack(side="right")
+
+    def _on_activate(self):
+        import licensing
+        key = self._key_var.get().strip()
+        if not key:
+            self._msg.configure(text="Please enter a license key.")
+            return
+        valid, msg = licensing.verify_key(key)
+        if not valid:
+            self._msg.configure(text=msg)
+            return
+        licensing.save_license(key)
+        self.activated = True
+        self.destroy()
+
+    def _on_exit(self):
+        self.destroy()
+
+
 # ── Add / Edit dialog ─────────────────────────────────────────────────────────
 class MachineDialog(tk.Toplevel):
 

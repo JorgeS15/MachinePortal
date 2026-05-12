@@ -5,6 +5,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.1.7] – 2026-05-12
+
+### Added
+- **Offline hardware licensing** — on first run, the app shows an activation dialog
+  with a Device ID derived from Windows Machine GUID, motherboard serial, and MAC
+  address. The vendor generates a signed license key via `tools/generate_license.py`;
+  the key is verified locally with HMAC-SHA256 (no internet required).
+  Keys support a `LIFETIME` expiry or a fixed date (`YYYYMMDD`).
+  The activated license is stored in `%APPDATA%\MachinePortal\license.key`.
+
+---
+
 ## [0.1.6] – 2026-05-12
 
 ### Changed
