@@ -64,8 +64,13 @@ def ping_host(ip: str) -> bool:
     else:
         cmd = ["ping", "-c", "1", "-W", "1", ip]
     try:
-        r = subprocess.run(cmd, stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL, timeout=3)
+        kwargs: dict = {"stdout": subprocess.DEVNULL,
+                        "stderr": subprocess.DEVNULL,
+                        "timeout": 3}
+        if sys.platform == "win32":
+            # Suppress the console window that ping would otherwise flash on screen
+            kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+        r = subprocess.run(cmd, **kwargs)
         return r.returncode == 0
     except Exception:
         return False

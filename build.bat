@@ -36,7 +36,7 @@ python -m pip install --upgrade pyinstaller >nul 2>&1
 REM Build
 echo Building EngelRV.exe ...
 cd engelrv_dashboard
-python -m PyInstaller engelrv.spec --distpath ..\dist --workpath ..\build --noconfirm
+python -m PyInstaller engelrv.spec --distpath ..\dist --workpath ..\build --noconfirm --clean
 cd ..
 
 if errorlevel 1 (
