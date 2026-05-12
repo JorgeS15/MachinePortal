@@ -77,7 +77,7 @@ def _sign(fp8: str, expiry: str) -> str:
 
 def generate_key(fingerprint: str, expiry: str = "LIFETIME") -> str:
     """Generate a license key for a given fingerprint (or display ID)."""
-    fp8 = fingerprint.replace("-", "")[:8].upper()
+    fp8 = fingerprint.replace("-", "").upper().replace("O", "0")[:8]
     expiry = expiry.upper()
     return f"{fp8}-{expiry}-{_sign(fp8, expiry)}"
 

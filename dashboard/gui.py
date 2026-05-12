@@ -387,8 +387,18 @@ class ActivationDialog(tk.Toplevel):
         box.pack(padx=24, pady=4, fill="x")
         tk.Label(box, text="Your Device ID", bg=SURFACE, fg=TEXT_DIM,
                  font=FONT_SMALL).pack(anchor="w")
-        tk.Label(box, text=licensing.get_display_id(), bg=SURFACE, fg=TEXT,
-                 font=("Courier New", 14, "bold")).pack(anchor="w", pady=(3, 0))
+        did = licensing.get_display_id()
+        id_row = tk.Frame(box, bg=SURFACE)
+        id_row.pack(anchor="w", pady=(3, 0), fill="x")
+        tk.Label(id_row, text=did, bg=SURFACE, fg=TEXT,
+                 font=("Courier New", 14, "bold")).pack(side="left")
+        def _copy_id():
+            self.clipboard_clear()
+            self.clipboard_append(did)
+            copy_btn.configure(text="Copied!")
+            self.after(1500, lambda: copy_btn.configure(text="Copy"))
+        copy_btn = _btn(id_row, "Copy", _copy_id, bg=BTN_SEC, width=6)
+        copy_btn.pack(side="left", padx=(10, 0))
         tk.Label(box, text="Send this ID to your vendor to receive a license key.",
                  bg=SURFACE, fg=TEXT_TINY, font=FONT_SMALL).pack(anchor="w", pady=(5, 0))
 
