@@ -33,6 +33,9 @@ REM Install/upgrade PyInstaller and required packages
 echo Installing dependencies...
 python -m pip install --upgrade pyinstaller PyNaCl >nul 2>&1
 
+REM Suppress pygame's "Hello from the pygame community" banner during analysis
+set PYGAME_HIDE_SUPPORT_PROMPT=1
+
 REM Build
 echo Building MachinePortal.exe ...
 cd dashboard
