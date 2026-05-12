@@ -11,10 +11,12 @@ import platform
 from dataclasses import dataclass
 from typing import Optional
 
+import config as _cfg
 from config import Machine, Settings
 
-# Log to a file next to the executable (or script) so errors survive windowless runs.
-_log_path = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen", False) else __file__), "engelrv.log")
+# Log to the config directory so the log file is always writable.
+os.makedirs(_cfg.CONFIG_DIR, exist_ok=True)
+_log_path = os.path.join(_cfg.CONFIG_DIR, "machineportal.log")
 logging.basicConfig(
     filename=_log_path,
     level=logging.DEBUG,
@@ -35,7 +37,7 @@ def _asset_path(filename: str) -> str:
 def _extract_to_temp(filename: str) -> str:
     """Copy a bundled .exe to a temp directory so it can be executed."""
     src = _asset_path(filename)
-    tmp_dir = tempfile.mkdtemp(prefix="engelrv_")
+    tmp_dir = tempfile.mkdtemp(prefix="machineportal_")
     dst = os.path.join(tmp_dir, filename)
     shutil.copy2(src, dst)
     return dst, tmp_dir

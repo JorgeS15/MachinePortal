@@ -4,7 +4,7 @@ import uuid
 from dataclasses import dataclass, field, fields, asdict
 from typing import List
 
-CONFIG_DIR = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "EngelRV")
+CONFIG_DIR = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "MachinePortal")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "machines.json")
 
 
