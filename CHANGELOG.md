@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.2.1] – 2026-05-12
+
+### Fixed
+- **Keypair mismatch on first setup** — `generate_keypair.py` now automatically
+  patches `_PUBLIC_KEY_HEX` in `dashboard/licensing.py` after generating a new
+  keypair, so the private key and the public key compiled into the exe are always
+  in sync. Previously the public key had to be pasted manually, causing
+  "License key signature is invalid" errors.
+- **PyNaCl not bundled in exe** — switched from `hiddenimports` to `collect_all`
+  in the PyInstaller spec to include PyNaCl's native C extension binaries (cffi /
+  libsodium). Added `pip install PyNaCl` to `build.bat`.
+
+---
+
 ## [0.2.0] – 2026-05-12
 
 ### Changed
