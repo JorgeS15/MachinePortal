@@ -5,6 +5,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.1.3] – 2026-05-12
+
+### Fixed
+- **Ping console flash** – `ping` subprocess now runs with
+  `CREATE_NO_WINDOW` on Windows; no cmd window ever appears.
+- **Exe icon not showing** – replaced PNG-only ICO (ignored by Windows
+  Explorer/taskbar) with a proper multi-size ICO containing BMP entries
+  at 16×16, 32×32, 48×48 plus a PNG entry at 256×256.
+- **Stale build cache** – added `--clean` to `build.bat` so PyInstaller
+  always picks up fresh assets on every build.
+
+---
+
 ## [0.1.2] – 2026-05-12
 
 ### Added
