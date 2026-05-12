@@ -80,7 +80,7 @@ def _connect_thread(machine: Machine, settings: Settings, on_error, on_done):
                     "-N", "-batch",
                     "-pw", machine.ssh_password,
                     f"{machine.ssh_user}@{machine.ip}",
-                    "-L", f"{settings.ssh_local_port}:localhost:{settings.ssh_remote_port}",
+                    "-L", f"{machine.port}:localhost:{settings.ssh_remote_port}",
                 ],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
@@ -95,7 +95,7 @@ def _connect_thread(machine: Machine, settings: Settings, on_error, on_done):
                     f"Check IP ({machine.ip}), username and password."
                 )
 
-            vnc_target = f"localhost::{settings.ssh_local_port}"
+            vnc_target = f"localhost::{machine.port}"
         else:
             vnc_target = f"{machine.ip}::{settings.vnc_port}"
 
