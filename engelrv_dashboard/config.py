@@ -1,7 +1,7 @@
 import json
 import os
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, fields, asdict
 from typing import List
 
 CONFIG_DIR = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "EngelRV")
@@ -15,19 +15,23 @@ class Machine:
     ssh: bool = False
     ssh_user: str = "user"
     ssh_password: str = ""
+    port: int = 10062      # unique SSH local-forwarding port per machine
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
 
 @dataclass
 class Settings:
-    ssh_local_port: int = 10060
-    ssh_remote_port: int = 5900
-    vnc_port: int = 5900
+    ssh_port_start: int = 10062    # first port to assign to new machines
+    ssh_remote_port: int = 5900    # VNC port on the remote host
+    vnc_port: int = 5900           # VNC port for direct (non-SSH) connections
     tunnel_wait_seconds: int = 3
+    default_ssh_user: str = ""
+    default_ssh_password: str = ""
 
 
-def _default_config():
-    return {"machines": [], "settings": asdict(Settings())}
+def _filter(dc_type, data: dict) -> dict:
+    valid = {f.name for f in fields(dc_type)}
+    return {k: v for k, v in data.items() if k in valid}
 
 
 def load() -> tuple[List[Machine], Settings]:
@@ -36,8 +40,8 @@ def load() -> tuple[List[Machine], Settings]:
     try:
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-        machines = [Machine(**m) for m in data.get("machines", [])]
-        settings = Settings(**data.get("settings", {}))
+        machines = [Machine(**_filter(Machine, m)) for m in data.get("machines", [])]
+        settings = Settings(**_filter(Settings, data.get("settings", {})))
         return machines, settings
     except Exception:
         return [], Settings()
