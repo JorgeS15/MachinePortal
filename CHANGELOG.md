@@ -5,6 +5,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.1.5] – 2026-05-12
+
+### Added
+- **Theme support** – Light (default, green accent) and Dark (purple accent) themes,
+  selectable in the Settings dialog under a new **Theme** section.
+  The app restarts automatically when the theme changes to apply it fully.
+- **Light theme** – clean white/green palette designed for daytime use; replaces the
+  previous dark-only UI as the shipping default.
+- **Updated icons** – embedded PNG icon and app `.ico` updated to match the Light
+  (green) theme; the Dark theme shows the original purple icon as the fallback.
+
+### Changed
+- All colour constants are now driven by `set_theme()`, making the entire GUI
+  (cards, dialogs, buttons, separators, entries) fully theme-aware.
+- Secondary buttons (Cancel, Export, Import, Edit, Settings) now use the
+  theme's `BTN_SEC` colour instead of a hardcoded dark value.
+
+---
+
 ## [0.1.4] – 2026-05-12
 
 ### Added
