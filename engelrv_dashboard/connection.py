@@ -5,16 +5,27 @@ import shutil
 import tempfile
 import subprocess
 import threading
+import logging
+import traceback
 from dataclasses import dataclass
 from typing import Optional
 
 from config import Machine, Settings
 
+# Log to a file next to the executable (or script) so errors survive windowless runs.
+_log_path = os.path.join(os.path.dirname(sys.executable if getattr(sys, "frozen", False) else __file__), "engelrv.log")
+logging.basicConfig(
+    filename=_log_path,
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(message)s",
+)
+
 
 def _asset_path(filename: str) -> str:
     """Resolve path to a bundled asset, works both in dev and PyInstaller .exe."""
     if getattr(sys, "frozen", False):
-        base = sys._MEIPASS  # type: ignore[attr-defined]
+        # PyInstaller extracts datas into _MEIPASS/<dest_dir>/filename
+        base = os.path.join(sys._MEIPASS, "assets")  # type: ignore[attr-defined]
     else:
         base = os.path.join(os.path.dirname(__file__), "assets")
     return os.path.join(base, filename)
@@ -100,6 +111,7 @@ def _connect_thread(machine: Machine, settings: Settings, on_error, on_done):
         vnc_proc.wait()
 
     except Exception as e:
+        logging.error("Connection failed for %s: %s\n%s", machine.name, e, traceback.format_exc())
         if on_error:
             on_error(str(e))
         return
