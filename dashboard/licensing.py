@@ -14,7 +14,7 @@ import config as _cfg
 
 # ── Signing secret ────────────────────────────────────────────────────────────
 # Change this to a long random string before distributing. Never share it.
-_SECRET = b"REPLACE-WITH-YOUR-OWN-RANDOM-SECRET-STRING"
+_SECRET = b"g1wAv940gtgvEaMU4QEv6YViQSPHJj26rKvs7HiV64EB0wK24U8l1TtMl84MzYWE"
 
 LICENSE_FILE = os.path.join(_cfg.CONFIG_DIR, "license.key")
 
