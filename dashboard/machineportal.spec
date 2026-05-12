@@ -12,7 +12,7 @@ a = Analysis(
         ('assets/LICENSE_TIGERVNC.txt', 'assets'),
         ('assets/machineportal.ico', 'assets'),
     ],
-    hiddenimports=[],
+    hiddenimports=["nacl", "nacl.signing", "nacl.exceptions", "nacl.bindings"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
