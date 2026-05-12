@@ -5,6 +5,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.2.0] – 2026-05-12
+
+### Changed
+- **Ed25519 asymmetric signing** replaces HMAC-SHA256 for license key verification.
+  The app now ships only an embedded public key; the private signing key stays
+  offline with the vendor. Even after full binary decompilation (e.g. with
+  `pyinstxtractor`), an attacker cannot forge valid keys.
+  **Old 0.1.x HMAC keys are not compatible — existing licenses must be reissued.**
+
+### Added
+- **`tools/generate_keypair.py`** — one-time tool to generate a fresh Ed25519
+  keypair and save `tools/private.key`. Run this once; keep `private.key` offline.
+- **Copy button** next to the Device ID in the activation dialog — eliminates
+  manual transcription and the 0/O visual confusion that caused key generation
+  to fail.
+
+### Fixed
+- **First-launch crash** — `ActivationDialog._build` passed `pady` twice to
+  `.pack()`, raising `TypeError: got multiple values for keyword argument 'pady'`.
+- **Machine fingerprint non-determinism** — `get_machine_fingerprint()` result
+  is now cached per process, preventing hash mismatches if WMIC or `uuid.getnode()`
+  returned different values between showing the Device ID and verifying the key.
+- **O vs 0 typo in device IDs** — `generate_key` now substitutes letter O → digit 0
+  before processing, since the Courier New bold font makes them visually identical.
+
+### Requires
+- `pip install PyNaCl` in both the app environment and the vendor tools environment.
+
+---
+
 ## [0.1.7] – 2026-05-12
 
 ### Added
