@@ -5,6 +5,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.1.4] – 2026-05-12
+
+### Added
+- **Right-click context menu** on machine cards — right-clicking any card
+  selects it and shows a small dropdown with **Connect**, **Edit**, and
+  **Remove** actions, styled to match the dark theme.
+
+---
+
 ## [0.1.3] – 2026-05-12
 
 ### Fixed

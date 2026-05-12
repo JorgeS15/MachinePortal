@@ -103,7 +103,8 @@ def _separator(parent, color="#2e2e48"):
 # ── Machine card widget ───────────────────────────────────────────────────────
 class MachineCard(tk.Frame):
 
-    def __init__(self, parent, machine: Machine, on_select, on_double):
+    def __init__(self, parent, machine: Machine, on_select, on_double,
+                 on_connect, on_edit, on_remove):
         super().__init__(
             parent,
             width=CARD_W, height=CARD_H,
@@ -114,8 +115,11 @@ class MachineCard(tk.Frame):
         )
         self.pack_propagate(False)
         self.machine = machine
-        self._on_select = on_select
-        self._on_double = on_double
+        self._on_select  = on_select
+        self._on_double  = on_double
+        self._on_connect = on_connect
+        self._on_edit    = on_edit
+        self._on_remove  = on_remove
         self._selected = False
 
         # ── Thumbnail ──────────────────────────────────────────────────────
@@ -190,10 +194,27 @@ class MachineCard(tk.Frame):
     def _bind_tree(self, widget):
         widget.bind("<Button-1>",        lambda e: self._on_select(self.machine.id))
         widget.bind("<Double-Button-1>", lambda e: self._on_double(self.machine.id))
+        widget.bind("<Button-3>",        self._show_context_menu)
         widget.bind("<Enter>",           self._on_hover_in)
         widget.bind("<Leave>",           self._on_hover_out)
         for child in widget.winfo_children():
             self._bind_tree(child)
+
+    def _show_context_menu(self, event):
+        self._on_select(self.machine.id)
+        menu = tk.Menu(self, tearoff=0,
+                       bg=SURFACE, fg=TEXT, activebackground=ACCENT,
+                       activeforeground="white", relief="flat",
+                       font=FONT, bd=0)
+        menu.add_command(label="Connect",
+                         command=lambda: self._on_connect(self.machine.id))
+        menu.add_separator()
+        menu.add_command(label="Edit",
+                         command=lambda: self._on_edit(self.machine.id))
+        menu.add_command(label="Remove",
+                         foreground=RED, activeforeground=RED,
+                         command=lambda: self._on_remove(self.machine.id))
+        menu.tk_popup(event.x_root, event.y_root)
 
     def _on_hover_in(self, _e):
         if not self._selected and not connection.is_connected(self.machine.id):
@@ -564,6 +585,9 @@ class App(tk.Tk):
                     self._grid_frame, m,
                     on_select=self._select_card,
                     on_double=self._connect_by_id,
+                    on_connect=self._connect_by_id,
+                    on_edit=self._edit_by_id,
+                    on_remove=self._remove_by_id,
                 )
                 self._cards[m.id] = card
 
@@ -611,6 +635,11 @@ class App(tk.Tk):
 
     def _edit_machine(self):
         m = self._selected_machine()
+        if m:
+            self._edit_by_id(m.id)
+
+    def _edit_by_id(self, machine_id: str):
+        m = next((x for x in self._machines if x.id == machine_id), None)
         if not m:
             return
         dlg = MachineDialog(self, machine=m, settings=self._settings)
@@ -623,6 +652,11 @@ class App(tk.Tk):
 
     def _delete_machine(self):
         m = self._selected_machine()
+        if m:
+            self._remove_by_id(m.id)
+
+    def _remove_by_id(self, machine_id: str):
+        m = next((x for x in self._machines if x.id == machine_id), None)
         if not m:
             return
         if messagebox.askyesno("Delete", f"Delete '{m.name}'?", parent=self):
