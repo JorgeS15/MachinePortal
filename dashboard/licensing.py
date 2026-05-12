@@ -20,7 +20,7 @@ except ImportError:
 import config as _cfg
 
 # Public key — safe to ship. Paired private key lives offline with the vendor.
-_PUBLIC_KEY_HEX = "a05d27d1541d4380d32f7dcf935cd79f833b7407833940fd7606b4f7efc06ebd"
+_PUBLIC_KEY_HEX = "eed2d48fd27b92192483eff5bef36a7f2d35e39ca67736570bbf7abce16bdf88"
 
 LICENSE_FILE = os.path.join(_cfg.CONFIG_DIR, "license.key")
 
