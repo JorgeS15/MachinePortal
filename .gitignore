@@ -11,3 +11,6 @@ dist/
 # Binary assets — download separately (see assets/PLACE_ASSETS_HERE.txt)
 engelrv_dashboard/assets/plink.exe
 engelrv_dashboard/assets/vncviewer.exe
+
+# License signing key — never commit this
+tools/private.key

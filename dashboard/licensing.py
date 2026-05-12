@@ -1,5 +1,5 @@
+import base64
 import hashlib
-import hmac
 import os
 import subprocess
 import uuid
@@ -10,11 +10,17 @@ try:
 except ImportError:
     _winreg = None
 
+try:
+    from nacl.signing import VerifyKey
+    from nacl.exceptions import BadSignatureError
+    _NACL_OK = True
+except ImportError:
+    _NACL_OK = False
+
 import config as _cfg
 
-# ── Signing secret ────────────────────────────────────────────────────────────
-# Change this to a long random string before distributing. Never share it.
-_SECRET = b"g1wAv940gtgvEaMU4QEv6YViQSPHJj26rKvs7HiV64EB0wK24U8l1TtMl84MzYWE"
+# Public key — safe to ship. Paired private key lives offline with the vendor.
+_PUBLIC_KEY_HEX = "a05d27d1541d4380d32f7dcf935cd79f833b7407833940fd7606b4f7efc06ebd"
 
 LICENSE_FILE = os.path.join(_cfg.CONFIG_DIR, "license.key")
 
@@ -68,31 +74,23 @@ def get_display_id() -> str:
     return "-".join(fp[i:i + 4] for i in range(0, 16, 4))
 
 
-# ── Key generation & verification ────────────────────────────────────────────
-
-def _sign(fp8: str, expiry: str) -> str:
-    msg = f"{fp8}|{expiry}".encode()
-    return hmac.new(_SECRET, msg, hashlib.sha256).hexdigest().upper()[:16]
-
-
-def generate_key(fingerprint: str, expiry: str = "LIFETIME") -> str:
-    """Generate a license key for a given fingerprint (or display ID)."""
-    fp8 = fingerprint.replace("-", "").upper().replace("O", "0")[:8]
-    expiry = expiry.upper()
-    return f"{fp8}-{expiry}-{_sign(fp8, expiry)}"
-
+# ── Key verification ──────────────────────────────────────────────────────────
 
 def verify_key(key: str) -> tuple[bool, str]:
     """Verify a license key against the current machine. Returns (valid, message)."""
-    key = key.strip().upper().replace(" ", "")
-    parts = key.split("-")
+    if not _NACL_OK:
+        return False, "Licensing library (PyNaCl) not installed."
+
+    key = key.strip().replace(" ", "")
+    # maxsplit=2 because the base64url signature can itself contain '-'
+    parts = key.split("-", 2)
 
     if len(parts) != 3:
-        return False, "Invalid key format (expected XXXXXXXX-EXPIRY-XXXXXXXXXXXXXXXX)."
+        return False, "Invalid key format."
 
-    fp8, expiry, sig = parts
+    fp8, expiry, sig_b64 = parts[0].upper(), parts[1].upper(), parts[2]
 
-    if len(fp8) != 8 or len(sig) != 16:
+    if len(fp8) != 8:
         return False, "Invalid key format."
 
     my_fp8 = get_machine_fingerprint()[:8].upper()
@@ -107,8 +105,17 @@ def verify_key(key: str) -> tuple[bool, str]:
         except ValueError:
             return False, "Invalid expiry date in key."
 
-    if not hmac.compare_digest(sig, _sign(fp8, expiry)):
+    try:
+        # Restore base64 padding stripped during key generation
+        padding = 4 - len(sig_b64) % 4
+        sig_bytes = base64.urlsafe_b64decode(sig_b64 + "=" * (padding % 4))
+        msg = f"{fp8}|{expiry}".encode()
+        vk = VerifyKey(bytes.fromhex(_PUBLIC_KEY_HEX))
+        vk.verify(msg, sig_bytes)
+    except BadSignatureError:
         return False, "License key signature is invalid."
+    except Exception:
+        return False, "Invalid key format."
 
     return True, "OK"
 

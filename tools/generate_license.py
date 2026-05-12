@@ -15,10 +15,36 @@ Examples:
 """
 import sys
 import os
+import base64
+from datetime import datetime
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "dashboard"))
+try:
+    from nacl.signing import SigningKey
+except ImportError:
+    sys.exit("ERROR: Install PyNaCl first:  pip install PyNaCl")
 
-from licensing import generate_key, _SECRET  # noqa: E402 (path inserted above)
+_PRIVATE_KEY_PATH = os.path.join(os.path.dirname(__file__), "private.key")
+
+
+def _load_signing_key() -> SigningKey:
+    if not os.path.exists(_PRIVATE_KEY_PATH):
+        sys.exit(
+            f"ERROR: Private key not found at {_PRIVATE_KEY_PATH}\n"
+            "Run generate_keypair.py first to create a keypair."
+        )
+    with open(_PRIVATE_KEY_PATH) as f:
+        seed_hex = f.read().strip()
+    return SigningKey(bytes.fromhex(seed_hex))
+
+
+def generate_key(device_id: str, expiry: str = "LIFETIME") -> str:
+    fp8 = device_id.replace("-", "").upper().replace("O", "0")[:8]
+    expiry = expiry.upper()
+    msg = f"{fp8}|{expiry}".encode()
+    sk = _load_signing_key()
+    sig_bytes = sk.sign(msg).signature  # 64 bytes
+    sig = base64.urlsafe_b64encode(sig_bytes).rstrip(b"=").decode()
+    return f"{fp8}-{expiry}-{sig}"
 
 
 def main() -> None:
@@ -35,7 +61,6 @@ def main() -> None:
 
     if expiry != "LIFETIME":
         try:
-            from datetime import datetime
             datetime.strptime(expiry, "%Y%m%d")
         except ValueError:
             print(f"ERROR: Invalid expiry date '{expiry}'. Use YYYYMMDD or LIFETIME.")
