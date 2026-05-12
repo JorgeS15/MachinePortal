@@ -1,11 +1,21 @@
+import os
+import sys
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 import threading
 
 import config
 import connection
 from config import Machine, Settings
 from version import VERSION
+
+
+def _asset_path(filename: str) -> str:
+    if getattr(sys, "frozen", False):
+        base = os.path.join(sys._MEIPASS, "assets")  # type: ignore[attr-defined]
+    else:
+        base = os.path.join(os.path.dirname(__file__), "assets")
+    return os.path.join(base, filename)
 
 # ── Colours & fonts ───────────────────────────────────────────────────────────
 BG        = "#1e1e2e"
@@ -120,10 +130,11 @@ class MachineCard(tk.Frame):
         info = tk.Frame(self, bg=CARD_BG)
         info.pack(fill="x", padx=8, pady=(6, 4))
 
-        connected = connection.is_connected(machine.id)
+        ping = connection.get_ping_state(machine.id)
+        dot_color = GREEN if ping is True else (RED if ping is False else TEXT_DIM)
         self._dot = tk.Label(
             info, text="●", bg=CARD_BG,
-            fg=GREEN if connected else TEXT_DIM,
+            fg=dot_color,
             font=FONT_SMALL,
         )
         self._dot.pack(side="left")
@@ -193,8 +204,9 @@ class MachineCard(tk.Frame):
             self.configure(highlightbackground=CARD_BG)
 
     def refresh_status(self):
-        connected = connection.is_connected(self.machine.id)
-        self._dot.configure(fg=GREEN if connected else TEXT_DIM)
+        state = connection.get_ping_state(self.machine.id)
+        colour = GREEN if state is True else (RED if state is False else TEXT_DIM)
+        self._dot.configure(fg=colour)
 
     def set_selected(self, selected: bool):
         self._selected = selected
@@ -330,7 +342,8 @@ class MachineDialog(tk.Toplevel):
 # ── Settings dialog ───────────────────────────────────────────────────────────
 class SettingsDialog(tk.Toplevel):
 
-    def __init__(self, parent, settings: Settings):
+    def __init__(self, parent, settings: Settings,
+                 on_export=None, on_import=None):
         super().__init__(parent)
         self.result: Settings | None = None
 
@@ -370,6 +383,13 @@ class SettingsDialog(tk.Toplevel):
         section("Default Credentials")
         self._def_user = field("Default SSH user",     settings.default_ssh_user)
         self._def_pass = field("Default SSH password", settings.default_ssh_password, show="•")
+
+        section("Backup & Restore")
+        br = tk.Frame(self, bg=BG)
+        br.grid(row=row[0], column=0, columnspan=2, padx=14, pady=5, sticky="w")
+        _btn(br, "Export…", on_export or (lambda: None), bg="#44446a", width=10).pack(side="left", padx=(0, 8))
+        _btn(br, "Import…", on_import or (lambda: None), bg="#44446a", width=10).pack(side="left")
+        row[0] += 1
 
         btn_frame = tk.Frame(self, bg=BG)
         btn_frame.grid(row=row[0], column=0, columnspan=2, pady=14)
@@ -412,12 +432,18 @@ class App(tk.Tk):
         self.minsize(580, 400)
         self.configure(bg=BG)
 
-        # Window icon
+        # Window icon — prefer .ico (correct Windows taskbar support)
         try:
-            _icon = tk.PhotoImage(data=_ICON_B64)
-            self.iconphoto(True, _icon)
+            ico = _asset_path("engelrv.ico")
+            if os.path.exists(ico):
+                self.wm_iconbitmap(ico)
+            else:
+                raise FileNotFoundError
         except Exception:
-            pass
+            try:
+                self.iconphoto(True, tk.PhotoImage(data=_ICON_B64))
+            except Exception:
+                pass
 
         self._machines, self._settings = config.load()
         self._cards: dict[str, MachineCard] = {}
@@ -426,6 +452,9 @@ class App(tk.Tk):
         self._build_ui()
         self._refresh_list()
         self.after(120, self._reflow_cards)
+
+        connection.start_ping_loop(lambda: self._machines)
+        self.after(2000, self._poll_status)
 
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
@@ -635,12 +664,57 @@ class App(tk.Tk):
         threading.Thread(target=poll_start, daemon=True).start()
         connection.connect(m, self._settings, on_error=on_error, on_done=on_done)
 
+    def _poll_status(self):
+        for card in self._cards.values():
+            card.refresh_status()
+        self.after(2000, self._poll_status)
+
     def _open_settings(self):
-        dlg = SettingsDialog(self, self._settings)
+        dlg = SettingsDialog(self, self._settings,
+                             on_export=self._export_config,
+                             on_import=self._import_config)
         self.wait_window(dlg)
         if dlg.result:
             self._settings = dlg.result
             config.save(self._machines, self._settings)
+
+    def _export_config(self):
+        path = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON backup", "*.json"), ("All files", "*.*")],
+            initialfile="engelrv_backup.json",
+            title="Export Config",
+            parent=self,
+        )
+        if path:
+            import shutil
+            shutil.copy2(config.CONFIG_FILE, path)
+            messagebox.showinfo("Export", f"Config exported to:\n{path}", parent=self)
+
+    def _import_config(self):
+        path = filedialog.askopenfilename(
+            filetypes=[("JSON backup", "*.json"), ("All files", "*.*")],
+            title="Import Config",
+            parent=self,
+        )
+        if not path:
+            return
+        try:
+            machines, settings = config.load_from(path)
+        except Exception as e:
+            messagebox.showerror("Import Failed", str(e), parent=self)
+            return
+        if not messagebox.askyesno(
+            "Import Config",
+            f"Replace current config with {len(machines)} machine(s) from backup?",
+            parent=self,
+        ):
+            return
+        self._machines = machines
+        self._settings = settings
+        config.save(machines, settings)
+        self._refresh_list()
+        messagebox.showinfo("Import", "Config imported successfully.", parent=self)
 
     def _set_status(self, msg: str):
         self._status_lbl.configure(text=msg)

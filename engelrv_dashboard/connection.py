@@ -7,6 +7,7 @@ import subprocess
 import threading
 import logging
 import traceback
+import platform
 from dataclasses import dataclass
 from typing import Optional
 
@@ -50,6 +51,42 @@ class ActiveConnection:
 
 _active: dict[str, ActiveConnection] = {}
 _lock = threading.Lock()
+
+# ── Ping state ────────────────────────────────────────────────────────────────
+_ping_state: dict[str, bool | None] = {}   # None = not yet polled
+_ping_lock  = threading.Lock()
+
+
+def ping_host(ip: str) -> bool:
+    """Send one ICMP ping; return True if host replies."""
+    if platform.system() == "Windows":
+        cmd = ["ping", "-n", "1", "-w", "500", ip]
+    else:
+        cmd = ["ping", "-c", "1", "-W", "1", ip]
+    try:
+        r = subprocess.run(cmd, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, timeout=3)
+        return r.returncode == 0
+    except Exception:
+        return False
+
+
+def get_ping_state(machine_id: str) -> bool | None:
+    """Return last known ping result for a machine (None if not yet polled)."""
+    with _ping_lock:
+        return _ping_state.get(machine_id)
+
+
+def start_ping_loop(machines_getter, interval: int = 5):
+    """Start a daemon thread that pings every machine every `interval` seconds."""
+    def _loop():
+        while True:
+            for m in machines_getter():
+                result = ping_host(m.ip)
+                with _ping_lock:
+                    _ping_state[m.id] = result
+            time.sleep(interval)
+    threading.Thread(target=_loop, daemon=True).start()
 
 
 def connect(machine: Machine, settings: Settings, on_error=None, on_done=None):

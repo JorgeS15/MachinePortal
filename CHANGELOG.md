@@ -5,6 +5,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.1.2] – 2026-05-12
+
+### Added
+- **Ping monitor** – a background thread pings every configured machine every 5 s.
+  The status dot on each card updates every 2 s: green = reachable, red = unreachable,
+  grey = not yet polled.
+- **Backup & Restore** – Export and Import buttons in the Settings dialog let you
+  save/load the full config (machines + settings) as a portable `.json` file.
+
+### Fixed
+- **App icon not appearing in built `.exe`** – switched from `iconphoto()` (PNG only)
+  to `wm_iconbitmap()` with the bundled `engelrv.ico`, which correctly sets both the
+  title-bar and taskbar icon on Windows. Falls back to embedded base64 PNG in dev mode.
+
+---
+
 ## [0.1.1] – 2026-05-12
 
 ### Added
