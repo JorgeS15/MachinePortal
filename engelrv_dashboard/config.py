@@ -47,6 +47,15 @@ def load() -> tuple[List[Machine], Settings]:
         return [], Settings()
 
 
+def load_from(path: str) -> tuple[List[Machine], Settings]:
+    """Load config from an arbitrary file path (used for import/restore)."""
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    machines = [Machine(**_filter(Machine, m)) for m in data.get("machines", [])]
+    settings = Settings(**_filter(Settings, data.get("settings", {})))
+    return machines, settings
+
+
 def save(machines: List[Machine], settings: Settings) -> None:
     os.makedirs(CONFIG_DIR, exist_ok=True)
     data = {
