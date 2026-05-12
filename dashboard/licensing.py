@@ -21,8 +21,15 @@ LICENSE_FILE = os.path.join(_cfg.CONFIG_DIR, "license.key")
 
 # ── Hardware fingerprint ──────────────────────────────────────────────────────
 
+_fingerprint_cache: str | None = None
+
+
 def get_machine_fingerprint() -> str:
     """Stable SHA-256 fingerprint of this machine's hardware (uppercase hex)."""
+    global _fingerprint_cache
+    if _fingerprint_cache is not None:
+        return _fingerprint_cache
+
     parts = []
 
     if _winreg:
@@ -51,7 +58,8 @@ def get_machine_fingerprint() -> str:
     parts.append(str(uuid.getnode()))
 
     combined = "|".join(parts) if parts else "fallback"
-    return hashlib.sha256(combined.encode()).hexdigest().upper()
+    _fingerprint_cache = hashlib.sha256(combined.encode()).hexdigest().upper()
+    return _fingerprint_cache
 
 
 def get_display_id() -> str:
