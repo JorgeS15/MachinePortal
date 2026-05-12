@@ -16,7 +16,7 @@ Examples:
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "engelrv_dashboard"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "dashboard"))
 
 from licensing import generate_key, _SECRET  # noqa: E402 (path inserted above)
 
