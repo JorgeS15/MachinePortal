@@ -5,6 +5,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.2.3] – 2026-05-12
+
+### Fixed
+- **Device ID changing after Windows updates** — the hardware fingerprint
+  previously mixed `MachineGuid`, WMIC board serial, and `uuid.getnode()`
+  (MAC address). Windows updates frequently install new virtual network
+  adapters which change the MAC returned by `uuid.getnode()`, producing a
+  different fingerprint and invalidating existing licenses.
+  The fingerprint now uses **only Windows `MachineGuid`**, which is set once
+  at Windows install time and never changes due to updates or driver changes.
+  Falls back to `ProductId` if `MachineGuid` is unavailable.
+  **Existing licenses must be reissued** after updating to this version.
+
+---
+
 ## [0.2.2] – 2026-05-12
 
 ### Changed

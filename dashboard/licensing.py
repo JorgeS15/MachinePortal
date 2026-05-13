@@ -1,8 +1,6 @@
 import base64
 import hashlib
 import os
-import subprocess
-import uuid
 from datetime import date, datetime
 
 try:
@@ -31,40 +29,38 @@ _fingerprint_cache: str | None = None
 
 
 def get_machine_fingerprint() -> str:
-    """Stable SHA-256 fingerprint of this machine's hardware (uppercase hex)."""
+    """Stable SHA-256 fingerprint of this machine's hardware (uppercase hex).
+
+    Uses Windows MachineGuid as the sole source — it is set once on Windows
+    install and survives reboots, driver updates, and network adapter changes.
+    Falls back to a secondary registry key, then a fixed string, so the value
+    is always deterministic even on non-Windows platforms.
+    """
     global _fingerprint_cache
     if _fingerprint_cache is not None:
         return _fingerprint_cache
 
-    parts = []
+    source = None
 
+    # Primary: MachineGuid — stable across updates, only changes on reinstall
     if _winreg:
-        try:
-            key = _winreg.OpenKey(
-                _winreg.HKEY_LOCAL_MACHINE,
-                r"SOFTWARE\Microsoft\Cryptography",
-            )
-            parts.append(_winreg.QueryValueEx(key, "MachineGuid")[0])
-        except Exception:
-            pass
+        for hive, path, value in [
+            (_winreg.HKEY_LOCAL_MACHINE,
+             r"SOFTWARE\Microsoft\Cryptography", "MachineGuid"),
+            (_winreg.HKEY_LOCAL_MACHINE,
+             r"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductId"),
+        ]:
+            try:
+                k = _winreg.OpenKey(hive, path)
+                source = _winreg.QueryValueEx(k, value)[0]
+                break
+            except Exception:
+                pass
 
-    try:
-        out = subprocess.check_output(
-            ["wmic", "baseboard", "get", "SerialNumber"],
-            text=True,
-            timeout=5,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        serial = out.strip().splitlines()[-1].strip()
-        if serial and serial.lower() not in ("serialnumber", "to be filled by o.e.m.", ""):
-            parts.append(serial)
-    except Exception:
-        pass
+    if not source:
+        source = "fallback"
 
-    parts.append(str(uuid.getnode()))
-
-    combined = "|".join(parts) if parts else "fallback"
-    _fingerprint_cache = hashlib.sha256(combined.encode()).hexdigest().upper()
+    _fingerprint_cache = hashlib.sha256(source.encode()).hexdigest().upper()
     return _fingerprint_cache
 
 
