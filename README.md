@@ -4,6 +4,8 @@
 Machine Portal is a single Windows application that lets you connect to, monitor, and
 organise every machine on your network from one place — no installer, no technical setup.
 
+<img width="952" height="715" alt="machine_portal_print" src="https://github.com/user-attachments/assets/a9420ab5-98e9-4360-912f-d604a0bace81" />
+
 ---
 
 ## What it does
