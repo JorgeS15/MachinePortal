@@ -1,102 +1,129 @@
 # Machine Portal
 
-**Remote access dashboard for your factory floor.**  
-Machine Portal lets you connect to and monitor any machine on your network from a single Windows application — no technical setup required.
+**Remote access dashboard for your factory floor.**
+Machine Portal is a single Windows application that lets you connect to, monitor, and
+organise every machine on your network from one place — no installer, no technical setup.
+
+---
+
+## What it does
+
+Machine Portal keeps all your machines in one dashboard. Each machine is a card showing its
+name, serial number, IP address, and a live status dot. Select a machine and click **Connect**
+and the remote screen opens automatically — including setting up a secure SSH tunnel behind the
+scenes when one is required. You can search your machines, open a machine's folder on a network
+drive, keep notes, and back up your whole list to move it to another PC.
 
 ---
 
 ## Features
 
-### Remote Access
-- **One-click connect** — select a machine and click Connect (or double-click its card). The app handles everything in the background and launches the remote view automatically.
-- **SSH tunnel support** — machines that require a secure tunnel are handled transparently; no manual configuration needed.
-- **Live reachability monitor** — every machine card shows a colour dot that updates every few seconds: **green** means the machine is reachable, **red** means it is not.
+### Remote access
+- **One-click connect** — select a machine and click **Connect**, or just double-click its card.
+  The remote screen opens automatically and cleans itself up when you close it.
+- **Secure SSH tunnel** — machines that need a tunnel are handled transparently. Credentials are
+  never shown in plain text and are stored encrypted on your PC.
+- **Live status** — every card shows a colour dot that refreshes every few seconds:
+  **green** = reachable, **red** = not reachable, **grey** = not yet checked.
 
-### Dashboard Views
-- **Grid View** — all your machines displayed as cards with name, IP address, connection type, and live status at a glance.
-- **Shopfloor View** — a free-form canvas where you can arrange machine cards to match your physical factory floor layout.
-  - Drag cards to any position and they stay there between sessions.
-  - **Rotate** cards 90° at a time so the orientation matches how each machine sits on the floor.
-  - **Scale** cards up or down so larger machines appear bigger than smaller ones.
+### Machine management
+- **Add, edit, and remove** machines at any time.
+- **Serial number and notes** on every machine, shown on the card and searchable.
+- **Search bar** — filter instantly by name, IP address, or serial number.
+- **Custom card image** — right-click a card → *Change Image* to make each machine easy to spot.
+- **Right-click menu** on any card: Connect, Open machine folder, Change Image, Edit, Remove.
 
-### Machine Management
-- Add, edit, and remove machines at any time.
-- Right-click any card for quick access to Connect, Edit, and Remove.
-- Each machine stores its own connection settings independently.
+### Machine folder
+- **Open machine folder** opens that machine's folder on your configured network drive
+  (using its serial number), so documentation and files are one click away.
 
-### Settings & Customisation
-- **Light and Dark themes** — choose the appearance that works best in your environment.
-- **English and Portuguese (PT)** interface languages.
-- **Backup & Restore** — export your full machine list to a file and import it on another PC or after a reinstallation.
+### Backup & restore
+- **Export** your machine list and settings to a `.json` file, and **import** it on another PC or
+  after a reinstall.
+- For security, backups **do not include SSH passwords** (those are encrypted per-PC and can't be
+  restored elsewhere) — you re-enter them once after restoring.
 
-### Help & Support
-- The **? Help** button in the toolbar opens a support form pre-filled with your contact details. Clicking Send opens your email client with a support message ready to go — the app's log file and configuration are attached automatically.
+### Built-in help
+- **? Guide** — a step-by-step how-to for every task, right inside the app.
+- **? Help** — a support form that emails your message to Equipack with the log attached.
+
+### Personalisation
+- **Light and Dark** themes.
+- **English and Portuguese (PT)** interface.
+
+### Secure & licensed
+- **Licensed per PC** — activate once with a key tied to this computer; no internet needed afterwards.
+- **Encrypted credentials** — stored SSH passwords are protected with Windows account encryption.
+- **Signed updates** — the app only installs updates that carry a valid signature from Equipack.
 
 ---
 
-## System Requirements
+## System requirements
 
 | | |
 |---|---|
 | Operating system | Windows 10 or Windows 11 (64-bit) |
-| Network | Local network access to the machines you want to monitor |
-| Installation | None — single `.exe` file, no installer needed |
+| Network | Local network access to the machines you want to reach |
+| Installation | None — a single `.exe`, no installer needed |
 
 ---
 
-## Getting Started
+## Getting started
 
 ### 1. Activate the app
-
-On first launch the **Activation** dialog appears. It shows your **Device ID** — a short code tied to this PC.
-
-1. Copy the Device ID using the **Copy** button.
+On first launch the **Activation** dialog shows your **Device ID** — a short code tied to this PC.
+1. Click **Copy** to copy the Device ID.
 2. Send it to your vendor (Equipack).
 3. Paste the license key you receive and click **Activate**.
 
-The license is saved locally. No internet connection is needed after activation.
+The license is saved locally; no internet connection is needed after activation.
 
 ### 2. Add your first machine
-
-1. Click **+ Add** in the top-right corner.
-2. Fill in the machine name and IP address.
-3. Enable **SSH tunnel** if required for that machine (your vendor will advise).
+1. Click **+ Add** in the top-right.
+2. Enter the **name**, **IP address**, and **serial number**.
+3. Enable **SSH tunnel** if that machine needs one (your vendor will advise), and enter the SSH
+   username/password.
 4. Click **Save** — the card appears on the dashboard.
 
 ### 3. Connect
+Click a card to select it and click **Connect**, or double-click the card.
+The remote screen opens automatically. Close it when you're done — the connection cleans up by itself.
 
-Click a card to select it, then click **Connect** in the toolbar — or just double-click the card directly.  
-The remote view opens automatically. Close it when you are done; the connection cleans up by itself.
+> New to the app? Open **? Guide** in the toolbar for the same steps with more detail, or read
+> **[INSTRUCTIONS.md](INSTRUCTIONS.md)**.
 
 ---
 
-## Shopfloor View
+## Everyday use
 
-Switch between Grid View and Shopfloor View using the button in the bottom toolbar.
-
-In Shopfloor View you can:
-
-- **Drag** any card to position it where that machine sits on your factory floor.
-- **Right-click** a card for extra options:
-  - **Rotate 90°** — rotate the card to match the machine's real-world orientation.
-  - **Scale…** — resize the card to reflect how large or small the machine is relative to others.
-
-Positions, rotations, and scales are saved automatically.
+- **Find a machine** — type in the search bar (name, IP, or serial). The list filters as you type.
+- **Open a machine's folder** — right-click the card → *Open machine folder* (requires the Netdrive
+  Path set in Settings and a serial number on the machine).
+- **Edit or remove** — right-click the card, or select it and use the toolbar.
 
 ---
 
 ## Settings
 
-Click **⚙ Settings** to change:
+Open **Settings** to change:
 
 | Setting | Description |
 |---|---|
-| Theme | Light (green) or Dark (purple) |
+| Theme | Light or Dark |
 | Language | English or Português (PT) |
-| VNC Port | Port used for direct connections |
-| SSH Remote Port | VNC port on the remote side of the tunnel |
-| SSH Tunnel Wait | How long to wait for the tunnel before launching the viewer |
+| Netdrive Path | Base network path used by *Open machine folder* |
+| VNC Port | Port used for direct (non-tunnelled) connections |
+| SSH Remote Port | The VNC port on the remote side of the tunnel |
+| SSH Tunnel Wait | How long to wait for the tunnel before opening the viewer |
 | Backup / Restore | Export or import your machine list as a `.json` file |
+
+---
+
+## Updating
+
+Machine Portal checks for new versions on startup. When one is available it offers to update;
+the download is verified against Equipack's signature before it is installed, so only genuine
+releases are ever run. You can also check manually in **Settings**.
 
 ---
 
@@ -104,15 +131,17 @@ Click **⚙ Settings** to change:
 
 | Symptom | What to try |
 |---|---|
-| Status dots stay grey | The machine may be unreachable or a firewall is blocking network pings |
-| Connection fails | Verify the machine's IP address is correct and it is powered on |
-| Activation dialog appears on every launch | Re-activate — contact your vendor if you have lost your license key |
+| Status dot stays grey | The machine may be unreachable, or a firewall is blocking network pings |
+| Connection fails | Check the IP address is correct, the machine is powered on, and (for SSH) the username/password |
+| "Local port already in use" | A previous session may still be open — close it, or restart Machine Portal |
+| Activation dialog appears every launch | Re-activate; contact your vendor if you've lost your license key |
 
-If you cannot resolve an issue, use the **? Help** button to send a support request. The log file is attached automatically so the support team can diagnose the problem right away.
+If you can't resolve an issue, use **? Help** to send a support request — the log file is attached
+automatically so support can diagnose it quickly.
 
 ---
 
 ## Support
 
-**Equipack**  
-Jorge Santos — jorgesantos@equipack.pt
+**Equipack, Lda.** — Jorge Santos
+jorgesantos@equipack.pt
