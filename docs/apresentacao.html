@@ -1,0 +1,504 @@
+<title>Machine Portal — Apresentação</title>
+<style>
+  :root{
+    --bg:#0F1411;
+    --bg-2:#0B0F0D;
+    --surface:#18211B;
+    --surface-2:#1F2A22;
+    --line:#2A332C;
+    --line-soft:#212a23;
+    --ink:#EAEFEA;
+    --muted:#93A096;
+    --faint:#5E6B62;
+    --accent:#84C818;
+    --accent-bright:#A6E22E;
+    --danger:#E5484D;
+    --danger-dim:#7d3033;
+    --display:"Bahnschrift","DIN Alternate","Oswald Medium","Segoe UI Semibold",system-ui,sans-serif;
+    --body:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:"Cascadia Code","Consolas",ui-monospace,"SFMono-Regular",monospace;
+    --pad:clamp(24px,5vw,84px);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 90% at 82% 8%, rgba(132,200,24,.10), transparent 55%),
+      radial-gradient(90% 70% at 12% 100%, rgba(132,200,24,.05), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+
+  /* faint control-panel dot grid */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+    background-image:radial-gradient(rgba(147,160,150,.09) 1px, transparent 1.4px);
+    background-size:26px 26px;
+    -webkit-mask-image:linear-gradient(180deg,transparent,#000 20%,#000 80%,transparent);
+            mask-image:linear-gradient(180deg,transparent,#000 20%,#000 80%,transparent);
+  }
+
+  .deck{position:relative; height:100dvh; z-index:1}
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:var(--pad);
+    padding-bottom:clamp(96px,12vh,132px);
+    opacity:0; visibility:hidden;
+    transform:translateX(36px);
+    transition:opacity .5s ease, transform .55s cubic-bezier(.2,.7,.2,1), visibility .55s;
+    overflow-y:auto;
+  }
+  .slide.is-active{opacity:1; visibility:visible; transform:none}
+  .slide.is-past{transform:translateX(-36px)}
+
+  .wrap{width:100%; max-width:1080px; margin:0 auto}
+
+  /* ---- shared type ---- */
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:.6em;
+    font-family:var(--mono);
+    font-size:clamp(11px,1.15vw,13px);
+    letter-spacing:.24em; text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 clamp(16px,2.4vw,26px);
+  }
+  .eyebrow::before{
+    content:""; width:22px; height:1px; background:var(--accent); opacity:.8;
+  }
+  h1,h2{font-family:var(--display); font-weight:600; text-wrap:balance; margin:0; line-height:.98; letter-spacing:.005em}
+  h1{font-size:clamp(44px,9vw,116px); letter-spacing:-.01em}
+  h2{font-size:clamp(30px,5.4vw,62px); line-height:1.02}
+  .lead{
+    font-size:clamp(17px,2.1vw,25px); line-height:1.5; color:var(--muted);
+    max-width:40ch; margin:clamp(18px,2.6vw,30px) 0 0;
+  }
+  .lead strong{color:var(--ink); font-weight:600}
+  .kicker{font-family:var(--mono); font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint)}
+
+  /* ---- cover ---- */
+  .cover .nameplate{
+    display:inline-flex; align-items:center; gap:14px;
+    border:1px solid var(--line); background:linear-gradient(180deg,var(--surface),var(--bg-2));
+    border-radius:14px; padding:10px 18px 10px 14px; margin-bottom:clamp(24px,3.4vw,40px);
+    box-shadow:0 20px 50px -30px rgba(0,0,0,.9);
+  }
+  .cover .logo-mark{
+    width:34px; height:34px; border-radius:8px; flex:none; position:relative;
+    background:linear-gradient(150deg,#20301a,#111a10);
+    border:1px solid #35471f;
+    display:grid; place-items:center;
+  }
+  .cover .logo-mark::after{content:""; width:11px; height:11px; border-radius:50%; background:var(--accent); box-shadow:0 0 14px 2px rgba(132,200,24,.7)}
+  .cover .plate-txt{display:flex; flex-direction:column; line-height:1.15}
+  .cover .plate-txt b{font-family:var(--display); letter-spacing:.02em; font-weight:600; font-size:15px}
+  .cover .plate-txt span{font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
+  .cover h1{margin-top:2px}
+  .cover .tagline{
+    font-size:clamp(18px,2.5vw,30px); line-height:1.35; color:var(--ink); font-weight:400;
+    max-width:24ch; margin:clamp(22px,3vw,34px) 0 0; text-wrap:balance;
+  }
+  .cover .tagline b{color:var(--accent-bright); font-weight:600}
+  .status-line{
+    display:inline-flex; align-items:center; gap:10px; margin-top:clamp(26px,3.6vw,40px);
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.06em; color:var(--muted);
+  }
+
+  .dot{width:9px; height:9px; border-radius:50%; background:var(--accent); flex:none; position:relative}
+  .dot.pulse::after{
+    content:""; position:absolute; inset:-5px; border-radius:50%;
+    border:1.5px solid var(--accent); opacity:.7;
+    animation:ring 2.2s ease-out infinite;
+  }
+  @keyframes ring{0%{transform:scale(.6);opacity:.8}100%{transform:scale(2.1);opacity:0}}
+
+  /* ---- problem list ---- */
+  .painlist{list-style:none; margin:clamp(22px,3vw,34px) 0 0; padding:0; display:grid; gap:clamp(12px,1.6vw,18px); max-width:44ch}
+  .painlist li{
+    display:flex; gap:14px; align-items:flex-start;
+    font-size:clamp(15px,1.7vw,19px); line-height:1.45; color:var(--muted);
+    padding-left:2px;
+  }
+  .painlist li b{color:var(--ink); font-weight:600}
+  .x{flex:none; width:22px; height:22px; border-radius:6px; margin-top:1px; display:grid; place-items:center;
+     background:rgba(229,72,77,.12); border:1px solid var(--danger-dim); color:var(--danger); font-size:13px; font-weight:700}
+
+  /* ---- steps ---- */
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,1.8vw,22px); margin-top:clamp(26px,3.4vw,40px)}
+  .step{
+    background:linear-gradient(180deg,var(--surface),var(--bg-2));
+    border:1px solid var(--line); border-radius:16px; padding:clamp(20px,2.4vw,30px);
+    position:relative; overflow:hidden;
+  }
+  .step::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85}
+  .step .num{font-family:var(--mono); font-size:12px; letter-spacing:.18em; color:var(--accent)}
+  .step h3{font-family:var(--display); font-weight:600; font-size:clamp(19px,2.2vw,25px); margin:12px 0 8px; letter-spacing:.01em}
+  .step p{margin:0; color:var(--muted); font-size:clamp(13.5px,1.5vw,16px); line-height:1.45}
+
+  /* ---- 2x2 value grid (local & offline) ---- */
+  .duo{display:grid; grid-template-columns:repeat(2,1fr); gap:clamp(12px,1.7vw,20px); margin-top:clamp(24px,3vw,36px)}
+  @media (max-width:640px){ .duo{grid-template-columns:1fr} }
+
+  /* ---- feature grid ---- */
+  .features{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,1.5vw,18px); margin-top:clamp(24px,3vw,36px)}
+  .feat{
+    background:var(--surface); border:1px solid var(--line-soft); border-radius:14px;
+    padding:clamp(16px,1.9vw,22px); transition:border-color .2s, transform .2s, background .2s;
+  }
+  .feat:hover{border-color:#3b4a3c; transform:translateY(-2px); background:var(--surface-2)}
+  .feat .ic{width:30px; height:30px; margin-bottom:14px; color:var(--accent)}
+  .feat h3{font-family:var(--display); font-weight:600; font-size:clamp(16px,1.7vw,19px); margin:0 0 6px; letter-spacing:.01em}
+  .feat p{margin:0; color:var(--muted); font-size:clamp(12.5px,1.35vw,14.5px); line-height:1.45}
+
+  /* ---- security ---- */
+  .sec{display:grid; gap:clamp(14px,1.8vw,20px); margin-top:clamp(24px,3vw,34px); max-width:52ch}
+  .sec-item{display:flex; gap:16px; align-items:flex-start}
+  .sec-item .shield{
+    flex:none; width:40px; height:40px; border-radius:10px; display:grid; place-items:center;
+    background:rgba(132,200,24,.10); border:1px solid #33461e; color:var(--accent);
+  }
+  .sec-item h3{font-family:var(--display); font-weight:600; font-size:clamp(17px,1.9vw,21px); margin:2px 0 5px; letter-spacing:.01em}
+  .sec-item p{margin:0; color:var(--muted); font-size:clamp(13.5px,1.5vw,16px); line-height:1.45}
+
+  /* ---- benefits ---- */
+  .benefits{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,1.8vw,22px); margin-top:clamp(28px,3.6vw,44px)}
+  .benefit{border-top:2px solid var(--accent); padding-top:18px}
+  .benefit .big{font-family:var(--display); font-weight:600; font-size:clamp(20px,2.4vw,28px); letter-spacing:.01em; line-height:1.05}
+  .benefit p{margin:10px 0 0; color:var(--muted); font-size:clamp(13.5px,1.5vw,16px); line-height:1.45}
+
+  /* ---- CTA ---- */
+  .cta .lead{max-width:34ch}
+  .contact{
+    margin-top:clamp(30px,4vw,46px); display:inline-flex; flex-direction:column; gap:6px;
+    border:1px solid var(--line); border-radius:16px; padding:clamp(22px,2.6vw,30px) clamp(26px,3vw,40px);
+    background:linear-gradient(180deg,var(--surface),var(--bg-2));
+  }
+  .contact .co{font-family:var(--display); font-weight:600; font-size:clamp(19px,2.2vw,24px); letter-spacing:.01em}
+  .contact .who{color:var(--muted); font-size:15px}
+  .contact .mail{font-family:var(--mono); font-size:clamp(15px,1.8vw,20px); color:var(--accent-bright); letter-spacing:.02em; margin-top:8px}
+
+  /* ---- nav / status bar ---- */
+  .hud{
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    display:flex; align-items:center; gap:clamp(12px,2vw,24px);
+    padding:14px clamp(20px,4vw,44px);
+    background:linear-gradient(180deg,transparent, rgba(11,15,13,.85) 40%);
+    backdrop-filter:blur(2px);
+  }
+  .rail{display:flex; gap:6px; flex:1; align-items:center; min-width:0}
+  .seg{flex:1; height:3px; border-radius:2px; background:var(--line); border:0; padding:0; cursor:pointer; transition:background .3s}
+  .seg:hover{background:#3f4d40}
+  .seg.on{background:var(--accent)}
+  .seg:focus-visible{outline:2px solid var(--accent-bright); outline-offset:3px}
+  .count{font-family:var(--mono); font-size:12.5px; letter-spacing:.12em; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .count b{color:var(--ink)}
+  .navbtns{display:flex; gap:8px}
+  .navbtns button{
+    width:40px; height:40px; border-radius:10px; cursor:pointer;
+    background:var(--surface); border:1px solid var(--line); color:var(--ink);
+    display:grid; place-items:center; transition:border-color .2s, background .2s, color .2s;
+  }
+  .navbtns button:hover:not(:disabled){border-color:var(--accent); color:var(--accent)}
+  .navbtns button:disabled{opacity:.35; cursor:default}
+  .navbtns button:focus-visible{outline:2px solid var(--accent-bright); outline-offset:2px}
+  .navbtns svg{width:18px; height:18px}
+
+  .hint{
+    position:fixed; top:18px; right:clamp(20px,4vw,44px); z-index:20;
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:8px;
+  }
+  kbd{font-family:var(--mono); font-size:11px; background:var(--surface); border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:2px 6px; color:var(--muted)}
+
+  @media (max-width:760px){
+    .steps,.features,.benefits{grid-template-columns:1fr}
+    .features{gap:10px}
+    .hint{display:none}
+    .slide{padding-bottom:clamp(88px,16vh,120px)}
+  }
+  @media (max-width:900px) and (min-width:761px){
+    .features{grid-template-columns:repeat(2,1fr)}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .slide{transition:opacity .01s}
+    .dot.pulse::after{animation:none}
+    *{scroll-behavior:auto}
+  }
+</style>
+
+<div class="grain"></div>
+
+<main class="deck" id="deck">
+
+  <!-- 1 · COVER -->
+  <section class="slide cover is-active" aria-label="Capa">
+    <div class="wrap">
+      <div class="nameplate">
+        <div class="logo-mark" aria-hidden="true"></div>
+        <div class="plate-txt"><b>Machine Portal</b><span>por Equipack</span></div>
+      </div>
+      <h1>Machine&nbsp;Portal</h1>
+      <p class="tagline">Acesso remoto a <b>todas as máquinas</b> da sua fábrica — num único painel, com um clique.</p>
+      <div class="status-line"><span class="dot pulse" aria-hidden="true"></span> Software industrial para Windows · Equipack, Lda.</div>
+    </div>
+  </section>
+
+  <!-- 2 · O PROBLEMA -->
+  <section class="slide" aria-label="O desafio" hidden>
+    <div class="wrap">
+      <p class="eyebrow">O desafio</p>
+      <h2>Aceder às máquinas dá demasiado trabalho</h2>
+      <ul class="painlist">
+        <li><span class="x" aria-hidden="true">✕</span><span><b>Deslocações constantes</b> ao chão de fábrica só para ligar a cada equipamento.</span></li>
+        <li><span class="x" aria-hidden="true">✕</span><span>Endereços&nbsp;IP, portas e credenciais <b>espalhados</b> por folhas de cálculo e post-its.</span></li>
+        <li><span class="x" aria-hidden="true">✕</span><span>Sem forma rápida de saber <b>que máquinas estão online</b>.</span></li>
+        <li><span class="x" aria-hidden="true">✕</span><span>Túneis&nbsp;SSH configurados <b>à mão</b> — lentos e sujeitos a erro.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 · A SOLUÇÃO -->
+  <section class="slide" aria-label="A solução" hidden>
+    <div class="wrap">
+      <p class="eyebrow">A solução</p>
+      <h2>Todas as máquinas.<br>Um painel. Um clique.</h2>
+      <p class="lead">O <strong>Machine Portal</strong> reúne todas as suas máquinas num único painel Windows. Selecione uma máquina e clique em <strong>Ligar</strong> — o ecrã remoto abre automaticamente, com o túnel seguro tratado nos bastidores.</p>
+      <div class="status-line"><span class="dot" aria-hidden="true"></span> Do chão de fábrica ao seu ecrã, em segundos.</div>
+    </div>
+  </section>
+
+  <!-- 4 · LOCAL E OFFLINE -->
+  <section class="slide" aria-label="Local e offline" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Local e offline</p>
+      <h2>A fábrica inteira,<br>a partir da sua secretária</h2>
+      <div class="duo">
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/><path d="M3 3l18 18"/></svg>
+          <h3>Funciona offline</h3>
+          <p>100% na rede local da fábrica, sem ligação à internet. Os seus dados nunca saem de casa.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+          <h3>Controle as máquinas</h3>
+          <p>Veja e opere o ecrã de qualquer equipamento à distância, em tempo real.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><circle cx="8" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg>
+          <h3>Guarde os dados no servidor</h3>
+          <p>Ficheiros de dados, cópias de segurança das máquinas e relatórios de estado — gravados centralmente no servidor.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 7h6l2 2h10v10H3z"/></svg>
+          <h3>Aceda num clique</h3>
+          <p>A pasta de cada máquina abre direto do seu lugar — sem ir ao chão de fábrica.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · COMO FUNCIONA -->
+  <section class="slide" aria-label="Como funciona" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Como funciona</p>
+      <h2>Simples de ponta a ponta</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="num">PASSO 01</div>
+          <h3>Adicionar a máquina</h3>
+          <p>Registe o nome, o endereço&nbsp;IP e o número de série. Feito uma vez, fica guardado.</p>
+        </div>
+        <div class="step">
+          <div class="num">PASSO 02</div>
+          <h3>Ver o estado ao vivo</h3>
+          <p>Um ponto verde indica que a máquina está acessível; vermelho, que não está. Actualizado automaticamente.</p>
+        </div>
+        <div class="step">
+          <div class="num">PASSO 03</div>
+          <h3>Ligar com um clique</h3>
+          <p>Duplo-clique no cartão da máquina e o ecrã remoto abre — sem passos técnicos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · FUNCIONALIDADES -->
+  <section class="slide" aria-label="Funcionalidades" hidden>
+    <div class="wrap">
+      <p class="eyebrow">O que traz</p>
+      <h2>Tudo o que precisa, num só sítio</h2>
+      <div class="features">
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <h3>Túnel SSH automático</h3>
+          <p>Ligações seguras sem qualquer configuração manual de portas ou túneis.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>
+          <h3>Estado ao vivo</h3>
+          <p>Um indicador colorido por máquina, actualizado a cada poucos segundos.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <h3>Pesquisa instantânea</h3>
+          <p>Encontre qualquer máquina por nome, endereço IP ou número de série.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 7h6l2 2h10v10H3z"/></svg>
+          <h3>Pasta da máquina</h3>
+          <p>Dados, cópias de segurança e relatórios de estado guardados no servidor — abertos num clique.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3z"/><path d="M4 7v10c0 1.7 3.6 3 8 3s8-1.3 8-3V7"/></svg>
+          <h3>Cópia de segurança</h3>
+          <p>Exporte e restaure a sua lista de máquinas noutro computador.</p>
+        </div>
+        <div class="feat">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg>
+          <h3>Português e Inglês</h3>
+          <p>Interface bilingue, com tema claro e escuro à sua escolha.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · SEGURANÇA -->
+  <section class="slide" aria-label="Segurança" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Segurança</p>
+      <h2>Pensado para o chão de fábrica</h2>
+      <div class="sec">
+        <div class="sec-item">
+          <div class="shield" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+          <div><h3>Licenciado por computador</h3><p>Cada instalação é activada com uma chave única, ligada àquele PC.</p></div>
+        </div>
+        <div class="sec-item">
+          <div class="shield" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/><circle cx="12" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+          <div><h3>Palavras-passe encriptadas</h3><p>As credenciais SSH ficam encriptadas no seu PC — nunca em texto simples, nunca incluídas nas cópias de segurança.</p></div>
+        </div>
+        <div class="sec-item">
+          <div class="shield" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v6c0 4-3 7-7 8-4-1-7-4-7-8V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <div><h3>Actualizações assinadas</h3><p>Só o software genuíno da Equipack é instalado — cada actualização é verificada digitalmente antes de correr.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · BENEFÍCIOS -->
+  <section class="slide" aria-label="Benefícios" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Porquê Machine Portal</p>
+      <h2>Menos tempo a ligar.<br>Mais tempo a produzir.</h2>
+      <div class="benefits">
+        <div class="benefit">
+          <div class="big">Sem instalação</div>
+          <p>Um único ficheiro <span style="font-family:var(--mono);color:var(--ink)">.exe</span>. Sem instalador, sem permissões de administrador.</p>
+        </div>
+        <div class="benefit">
+          <div class="big">Sem configuração técnica</div>
+          <p>Pronto a usar em minutos. O que antes exigia um técnico, agora faz qualquer operador.</p>
+        </div>
+        <div class="benefit">
+          <div class="big">Sempre actualizado</div>
+          <p>Novas versões chegam e instalam-se automaticamente, em segurança.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · CTA -->
+  <section class="slide cta" aria-label="Contactos" hidden>
+    <div class="wrap">
+      <p class="eyebrow">Vamos avançar</p>
+      <h2>Pronto para ver em acção?</h2>
+      <p class="lead">Peça uma demonstração e veja o Machine Portal a ligar às suas máquinas — ao vivo, na sua rede.</p>
+      <div class="contact">
+        <span class="co">Equipack, Lda.</span>
+        <span class="who">Jorge Santos</span>
+        <span class="mail">jorgesantos@equipack.pt</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="hint" aria-hidden="true"><span>Navegar</span> <kbd>←</kbd><kbd>→</kbd></div>
+
+<nav class="hud" aria-label="Navegação da apresentação">
+  <div class="rail" id="rail" role="tablist"></div>
+  <div class="count"><b id="cur">01</b> / <span id="total">08</span></div>
+  <div class="navbtns">
+    <button id="prev" aria-label="Slide anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button id="next" aria-label="Slide seguinte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+</nav>
+
+<script>
+  (function(){
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var rail   = document.getElementById('rail');
+    var curEl  = document.getElementById('cur');
+    var prevB  = document.getElementById('prev');
+    var nextB  = document.getElementById('next');
+    var i = 0;
+
+    document.getElementById('total').textContent = String(slides.length).padStart(2,'0');
+
+    slides.forEach(function(_, n){
+      var b = document.createElement('button');
+      b.className = 'seg' + (n===0?' on':'');
+      b.setAttribute('role','tab');
+      b.setAttribute('aria-label','Ir para o slide ' + (n+1));
+      b.addEventListener('click', function(){ go(n); });
+      rail.appendChild(b);
+    });
+    var segs = Array.prototype.slice.call(rail.children);
+
+    function go(n){
+      n = Math.max(0, Math.min(slides.length-1, n));
+      if (n === i) return;
+      slides[i].classList.remove('is-active');
+      slides[i].classList.toggle('is-past', n > i);
+      slides[i].setAttribute('hidden','');
+      i = n;
+      slides[i].removeAttribute('hidden');
+      // force reflow so the transition plays from the offset state
+      void slides[i].offsetWidth;
+      slides[i].classList.remove('is-past');
+      slides[i].classList.add('is-active');
+      slides[i].scrollTop = 0;
+      segs.forEach(function(s,k){ s.classList.toggle('on', k<=i); });
+      curEl.textContent = String(i+1).padStart(2,'0');
+      prevB.disabled = i===0;
+      nextB.disabled = i===slides.length-1;
+    }
+
+    prevB.addEventListener('click', function(){ go(i-1); });
+    nextB.addEventListener('click', function(){ go(i+1); });
+    prevB.disabled = true;
+
+    document.addEventListener('keydown', function(e){
+      if (e.key==='ArrowRight' || e.key===' ' || e.key==='PageDown'){ e.preventDefault(); go(i+1); }
+      else if (e.key==='ArrowLeft' || e.key==='PageUp'){ e.preventDefault(); go(i-1); }
+      else if (e.key==='Home'){ go(0); }
+      else if (e.key==='End'){ go(slides.length-1); }
+    });
+
+    // swipe on touch
+    var x0=null;
+    document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+    document.addEventListener('touchend', function(e){
+      if (x0===null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 55){ go(dx<0 ? i+1 : i-1); }
+      x0=null;
+    }, {passive:true});
+  })();
+</script>
