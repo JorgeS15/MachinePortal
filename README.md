@@ -1,5 +1,7 @@
 # [Machine Portal](https://jorges15.github.io/MachinePortal/)
 
+**English** · [Português](README.pt.md)
+
 **Remote access dashboard for your factory floor.**
 Machine Portal is a single Windows application that lets you connect to, monitor, and
 organise every machine on your network from one place — no installer, no technical setup.
