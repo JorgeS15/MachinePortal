@@ -48,6 +48,7 @@
   .slide{
     position:absolute; inset:0;
     display:flex; flex-direction:column; justify-content:center;
+    justify-content:safe center;   /* top-align + scroll when content is taller than the screen */
     padding:var(--pad);
     padding-bottom:clamp(96px,12vh,132px);
     opacity:0; visibility:hidden;
@@ -216,14 +217,39 @@
   }
   kbd{font-family:var(--mono); font-size:11px; background:var(--surface); border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:2px 6px; color:var(--muted)}
 
-  @media (max-width:760px){
-    .steps,.features,.benefits{grid-template-columns:1fr}
-    .features{gap:10px}
-    .hint{display:none}
-    .slide{padding-bottom:clamp(88px,16vh,120px)}
-  }
   @media (max-width:900px) and (min-width:761px){
     .features{grid-template-columns:repeat(2,1fr)}
+  }
+
+  @media (max-width:760px){
+    :root{ --pad:20px; }
+    .hint{display:none}
+    .slide{ padding-top:24px; padding-bottom:92px; }
+
+    h1{font-size:clamp(38px,12.5vw,58px)}
+    h2{font-size:clamp(25px,7vw,38px)}
+    .lead{font-size:16.5px; max-width:none}
+    .cover .tagline{font-size:19px; max-width:none}
+    .status-line{font-size:11.5px; flex-wrap:wrap; row-gap:4px}
+    .eyebrow{margin-bottom:16px}
+
+    .steps,.benefits{grid-template-columns:1fr; gap:12px; margin-top:22px}
+    .duo,.features{grid-template-columns:1fr; gap:10px; margin-top:22px}
+
+    /* compact horizontal cards: icon left, text right */
+    .feat{display:grid; grid-template-columns:auto 1fr; column-gap:14px; align-items:start; padding:14px 16px}
+    .feat .ic{grid-column:1; grid-row:1 / span 2; width:26px; height:26px; margin:1px 0 0; align-self:start}
+    .feat h3{grid-column:2; grid-row:1; margin:0 0 4px; font-size:16px}
+    .feat p{grid-column:2; grid-row:2; margin:0; font-size:13.5px}
+
+    .step{padding:16px 18px}
+    .step h3{font-size:19px; margin:10px 0 6px}
+    .benefit{padding-top:14px}
+    .painlist li{font-size:16px}
+    .painlist{gap:12px}
+    .sec{gap:14px}
+    .sec-item .shield{width:36px; height:36px}
+    .contact{padding:20px 24px}
   }
 
   @media (prefers-reduced-motion:reduce){
@@ -244,7 +270,7 @@
         <div class="logo-mark" aria-hidden="true"></div>
         <div class="plate-txt"><b>Machine Portal</b><span>por Equipack</span></div>
       </div>
-      <h1>Machine&nbsp;Portal</h1>
+      <h1>Machine Portal</h1>
       <p class="tagline">Acesso remoto a <b>todas as máquinas</b> da sua fábrica — num único painel, com um clique.</p>
       <div class="status-line"><span class="dot pulse" aria-hidden="true"></span> Software industrial para Windows · Equipack, Lda.</div>
     </div>
